@@ -4,6 +4,8 @@
   <meta charset="UTF-8">
   <title>EGYA Inventory System</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
 </head>
 <body class="bg-gray-50 p-6">
   <div class="max-w-4xl mx-auto">
@@ -76,7 +78,12 @@
           Record Sale
         </button>
       </form>
-
+    
+      <div class="p-4 mt-4 bg-white rounded shadow">
+        <h2 class="text-xl font-bold mb-2">Sales Overview</h2>
+        <canvas id="salesChart" height="100"></canvas>
+      </div>
+            
 
   </div>
 

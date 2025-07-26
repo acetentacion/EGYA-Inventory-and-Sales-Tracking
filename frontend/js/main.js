@@ -205,3 +205,33 @@ async function loadProducts(searchFilter = '', categoryFilter = '') {
     }
   }
   
+  async function loadSalesChart() {
+    const res = await fetch('http://localhost:3000/api/analytics/sales-overview');
+    const data = await res.json();
+  
+    const ctx = document.getElementById('salesChart').getContext('2d');
+  
+    new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: data.map(d => d.platform),
+        datasets: [{
+          label: 'Units Sold',
+          data: data.map(d => d.total_sold),
+          backgroundColor: 'rgba(59, 130, 246, 0.6)'
+        }]
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          legend: { display: false },
+          title: { display: true, text: 'Sales by Platform' }
+        }
+      }
+    });
+  }
+  
+  window.addEventListener('DOMContentLoaded', () => {
+    loadSalesChart();
+  });
+  

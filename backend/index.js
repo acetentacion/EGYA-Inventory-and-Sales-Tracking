@@ -19,5 +19,6 @@ app.use('/api/products', productRoutes);
 
 const salesRoutes = require('./routes/sales');
 app.use('/api/sales', salesRoutes);
+app.use('/api/analytics', require('./routes/analytics'));
 
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
