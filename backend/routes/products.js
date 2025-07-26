@@ -98,4 +98,17 @@ router.put('/:id', async (req, res) => {
       res.status(500).json({ error: 'Failed to delete product' });
     }
   });
+
+// Get unique categories
+router.get('/categories', async (req, res) => {
+    try {
+      const [rows] = await db.query(
+        `SELECT DISTINCT category FROM products WHERE category IS NOT NULL AND category != '' ORDER BY category`
+      );
+      const categories = rows.map(r => r.category);
+      res.json(categories);
+    } catch (err) {
+      res.status(500).json({ error: err.message });
+    }
+  });
   

@@ -1,21 +1,20 @@
-async function loadProducts(filter = '') {
+async function loadProducts(searchFilter = '', categoryFilter = '') {
     const res = await fetch('http://localhost:3000/api/products');
     const data = await res.json();
   
     const productList = document.getElementById('product-list');
     productList.innerHTML = '';
   
-    const filtered = data.filter(product =>
-      product.name.toLowerCase().includes(filter.toLowerCase()) ||
-      product.sku.toLowerCase().includes(filter.toLowerCase())
-    );
+    const filtered = data.filter(product => {
+      const matchesSearch = product.name.toLowerCase().includes(searchFilter.toLowerCase()) ||
+                            product.sku.toLowerCase().includes(searchFilter.toLowerCase());
+      const matchesCategory = !categoryFilter || product.category === categoryFilter;
+      return matchesSearch && matchesCategory;
+    });
   
     filtered.forEach(product => {
       const div = document.createElement('div');
-      div.className = `p-4 rounded shadow mb-2 ${
-        product.current_stock <= 5 ? 'bg-red-100 border border-red-400' : 'bg-white'
-      }`;
-      
+      div.className = 'p-4 bg-white rounded shadow mb-2';
       div.innerHTML = `
         <strong>${product.name}</strong> (${product.sku}) - Stock: ${product.current_stock}
         <br>
@@ -25,6 +24,7 @@ async function loadProducts(filter = '') {
       productList.appendChild(div);
     });
   }
+  
   
 
   function editProduct(id) {
@@ -91,11 +91,22 @@ async function loadProducts(filter = '') {
   
   document.addEventListener('DOMContentLoaded', () => {
     loadProducts(); // Auto-load products on page open
-    document.getElementById('product-search').addEventListener('input', (e) => {
-        loadProducts(e.target.value);
-      });
+    const searchInput = document.getElementById('product-search');
+    const categorySelect = document.getElementById('category-filter');
+
+    function applyFilters() {
+        const searchTerm = searchInput.value;
+        const selectedCategory = categorySelect.value;
+        loadProducts(searchTerm, selectedCategory);
+}
+
+    searchInput.addEventListener('input', applyFilters);
+    categorySelect.addEventListener('change', applyFilters);
+
       
     loadSales();
+    populateCategoryDropdown();
+
 
     // 🧾 Sale submission
     document.getElementById('sales-form').addEventListener('submit', async function (e) {
@@ -175,3 +186,22 @@ async function loadProducts(filter = '') {
       
     });
   });
+
+  async function populateCategoryDropdown() {
+    const dropdown = document.getElementById('category-filter');
+    try {
+      const res = await fetch('http://localhost:3000/api/products/categories');
+      const categories = await res.json();
+  
+      dropdown.innerHTML = '<option value="">All Categories</option>';
+      categories.forEach(category => {
+        const option = document.createElement('option');
+        option.value = category;
+        option.textContent = category;
+        dropdown.appendChild(option);
+      });
+    } catch (err) {
+      console.error('Error loading categories:', err);
+    }
+  }
+  
