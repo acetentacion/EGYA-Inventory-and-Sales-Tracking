@@ -44,4 +44,45 @@ router.get('/', async (req, res) => {
   }
 });
 
+// GET /api/sales/export
+router.get('/export', async (req, res) => {
+    try {
+      const [rows] = await db.query(`
+        SELECT 
+          s.id,
+          p.name AS product_name,
+          s.quantity,
+          s.platform,
+          s.total_price,
+          s.created_at
+        FROM sales s
+        JOIN products p ON s.product_id = p.id
+        ORDER BY s.created_at DESC
+      `);
+  
+      const csvRows = [
+        ['Sale ID', 'Product', 'Quantity', 'Platform', 'Total Price', 'Date'],
+        ...rows.map(r => [
+          r.id,
+          r.product_name,
+          r.quantity,
+          r.platform,
+          r.total_price,
+          new Date(r.created_at).toLocaleString()
+        ])
+      ];
+  
+      const csv = csvRows.map(row => row.join(',')).join('\n');
+  
+      res.header('Content-Type', 'text/csv');
+      res.attachment('sales-report.csv');
+      res.send(csv);
+  
+    } catch (err) {
+      console.error('Export Error:', err.message);
+      res.status(500).json({ error: 'Failed to export sales report' });
+    }
+  });
+  
+
 module.exports = router;

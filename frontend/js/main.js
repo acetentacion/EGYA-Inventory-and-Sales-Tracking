@@ -235,3 +235,7 @@ async function loadProducts(searchFilter = '', categoryFilter = '') {
     loadSalesChart();
   });
   
+  document.getElementById('exportCSV').addEventListener('click', () => {
+    window.location.href = 'http://localhost:3000/api/sales/export';
+  });
+  
