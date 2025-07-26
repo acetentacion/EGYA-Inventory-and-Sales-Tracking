@@ -68,4 +68,34 @@ router.post('/', async (req, res) => {
       res.status(500).json({ error: 'Failed to record sale' });
     }
   });
+
+  // Update product by ID
+router.put('/:id', async (req, res) => {
+    const { id } = req.params;
+    const { name, sku, category, cost_price, sell_price, current_stock } = req.body;
+  
+    try {
+      await db.execute(
+        `UPDATE products SET name = ?, sku = ?, category = ?, cost_price = ?, sell_price = ?, current_stock = ? WHERE id = ?`,
+        [name, sku, category, cost_price, sell_price, current_stock, id]
+      );
+      res.json({ message: 'Product updated' });
+    } catch (error) {
+      console.error('Update error:', error);
+      res.status(500).json({ error: 'Failed to update product' });
+    }
+  });
+  
+  // Delete product by ID
+  router.delete('/:id', async (req, res) => {
+    const { id } = req.params;
+  
+    try {
+      await db.execute(`DELETE FROM products WHERE id = ?`, [id]);
+      res.json({ message: 'Product deleted' });
+    } catch (error) {
+      console.error('Delete error:', error);
+      res.status(500).json({ error: 'Failed to delete product' });
+    }
+  });
   

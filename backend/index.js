@@ -13,4 +13,11 @@ app.get('/', (req, res) => {
   res.send('EGYA Inventory Backend is running');
 });
 
+// ROUTES
+const productRoutes = require('./routes/products');
+app.use('/api/products', productRoutes);
+
+const salesRoutes = require('./routes/sales');
+app.use('/api/sales', salesRoutes);
+
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
