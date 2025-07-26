@@ -12,7 +12,10 @@ async function loadProducts(filter = '') {
   
     filtered.forEach(product => {
       const div = document.createElement('div');
-      div.className = 'p-4 bg-white rounded shadow mb-2';
+      div.className = `p-4 rounded shadow mb-2 ${
+        product.current_stock <= 5 ? 'bg-red-100 border border-red-400' : 'bg-white'
+      }`;
+      
       div.innerHTML = `
         <strong>${product.name}</strong> (${product.sku}) - Stock: ${product.current_stock}
         <br>
