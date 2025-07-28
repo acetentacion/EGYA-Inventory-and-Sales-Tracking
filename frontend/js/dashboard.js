@@ -8,19 +8,36 @@ let salesChartInstance = null; // store the chart instance
 // DASHBOARD SUMMARY
 // ========================
 async function loadDashboardSummary() {
-  try {
-    const res = await fetch(`${API_BASE}/analytics/summary`);
-    const data = await res.json();
-    console.log("Summary Data:", data);
-
-    document.getElementById('total-products').textContent = data.total_products;
-    document.getElementById('total-sales').textContent = `₱${data.total_sales}`;
-    document.getElementById('total-profit').textContent = `₱${data.total_profit}`;
-    document.getElementById('low-stock').textContent = data.low_stock_count;
-  } catch (err) {
-    console.error("Dashboard error:", err);
+    try {
+      const res = await fetch(`${API_BASE}/analytics/summary`);
+      const data = await res.json(); // ✅ data is defined here
+      console.log("Summary Data:", data);
+  
+      document.getElementById('total-products').textContent = data.total_products;
+      document.getElementById('total-sales').textContent = `₱${data.total_sales}`;
+      document.getElementById('total-profit').textContent = `₱${data.total_profit}`;
+      document.getElementById('low-stock').textContent = data.low_stock_count;
+  
+      // 🔴 Low stock alert handling
+      const alertBox = document.getElementById('low-stock-alert');
+      const countSpan = document.getElementById('low-stock-count');
+      const listEl = document.getElementById('low-stock-list');
+  
+      if (data.low_stock_count > 0) {
+        countSpan.textContent = data.low_stock_count;
+        listEl.innerHTML = data.low_stock_products
+          .map(p => `<li>${p.name} (${p.current_stock} left)</li>`)
+          .join('');
+        alertBox.classList.remove('hidden');
+      } else {
+        alertBox.classList.add('hidden');
+      }
+  
+    } catch (err) {
+      console.error("Dashboard error:", err);
+    }
   }
-}
+  
 
 // ========================
 // SALES CHART
@@ -70,3 +87,4 @@ document.addEventListener('DOMContentLoaded', () => {
     loadSalesChart(e.target.value);
   });
 });
+

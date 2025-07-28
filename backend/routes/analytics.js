@@ -87,23 +87,56 @@ router.get('/profit-by-product', async (req, res) => {
 });
 
 router.get('/summary', async (req, res) => {
-    try {
-      const [[{ total_products }]] = await db.execute(`SELECT COUNT(*) AS total_products FROM products`);
-      const [[{ total_sales }]] = await db.execute(`SELECT SUM(quantity * sell_price) AS total_sales FROM sales JOIN products ON sales.product_id = products.id`);
-      const [[{ total_profit }]] = await db.execute(`SELECT SUM((sell_price - cost_price) * quantity) AS total_profit FROM sales JOIN products ON sales.product_id = products.id`);
-      const [[{ low_stock_count }]] = await db.execute(`SELECT COUNT(*) AS low_stock_count FROM products WHERE current_stock <= 3`);
-  
-      res.json({
-        total_products: total_products || 0,
-        total_sales: total_sales || 0,
-        total_profit: total_profit || 0,
-        low_stock_count: low_stock_count || 0
-      });
-    } catch (err) {
-      console.error('Error getting summary:', err);
-      res.status(500).json({ error: 'Failed to load summary' });
-    }
-  });
+  try {
+    // Total products
+    const [[{ total_products }]] = await db.execute(`
+      SELECT COUNT(*) AS total_products FROM products
+    `);
+
+    // Total sales
+    const [[{ total_sales }]] = await db.execute(`
+      SELECT SUM(quantity * sell_price) AS total_sales 
+      FROM sales 
+      JOIN products ON sales.product_id = products.id
+    `);
+
+    // Total profit
+    const [[{ total_profit }]] = await db.execute(`
+      SELECT SUM((sell_price - cost_price) * quantity) AS total_profit 
+      FROM sales 
+      JOIN products ON sales.product_id = products.id
+    `);
+
+    // Low stock count
+    const [[{ low_stock_count }]] = await db.execute(`
+      SELECT COUNT(*) AS low_stock_count 
+      FROM products 
+      WHERE current_stock <= 3
+    `);
+
+    // Low stock product list
+    const [low_stock_products] = await db.execute(`
+      SELECT name, current_stock 
+      FROM products 
+      WHERE current_stock <= 3
+      ORDER BY current_stock ASC
+    `);
+
+    // Send response
+    res.json({
+      total_products: total_products || 0,
+      total_sales: total_sales || 0,
+      total_profit: total_profit || 0,
+      low_stock_count: low_stock_count || 0,
+      low_stock_products // 👈 Now added
+    });
+
+  } catch (err) {
+    console.error('Error getting summary:', err);
+    res.status(500).json({ error: 'Failed to load summary' });
+  }
+});
+
   
   router.get('/profit-overview', async (req, res) => {
     try {
