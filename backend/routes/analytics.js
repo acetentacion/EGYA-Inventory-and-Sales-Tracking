@@ -105,5 +105,26 @@ router.get('/summary', async (req, res) => {
     }
   });
   
-module.exports = router;
+  router.get('/profit-overview', async (req, res) => {
+    try {
+      const [rows] = await db.query(`
+        SELECT 
+          p.name AS product_name,
+          COALESCE(SUM(s.quantity), 0) AS total_sold,
+          COALESCE(SUM(s.quantity * p.sell_price), 0) AS total_sales,
+          COALESCE(SUM(s.quantity * (p.sell_price - p.cost_price)), 0) AS total_profit
+        FROM products p
+        LEFT JOIN sales s ON p.id = s.product_id
+        GROUP BY p.id
+        ORDER BY total_profit DESC
+      `);
+  
+      res.json(rows);
+    } catch (err) {
+      console.error('Error fetching profit overview:', err);
+      res.status(500).json({ error: 'Failed to fetch profit overview' });
+    }
+  });
+  
 
+module.exports = router;

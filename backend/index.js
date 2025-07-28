@@ -24,6 +24,36 @@ app.use('/api/sales', salesRoutes);
 
 app.use('/api/analytics', require('./routes/analytics'));
 
+// 📊 Dashboard Summary Endpoint
+app.get('/api/analytics/summary', async (req, res) => {
+    try {
+      // Total products
+      const [totalProducts] = await db.execute(`SELECT COUNT(*) as count FROM products`);
+      
+      // Total sales (sum of sales table amounts or computed from quantities * price)
+      const [totalSales] = await db.execute(`SELECT SUM(quantity * sell_price) as total FROM sales 
+        JOIN products ON sales.product_id = products.id`);
+      
+      // Total profit (sell price - cost price)
+      const [totalProfit] = await db.execute(`SELECT SUM((sell_price - cost_price) * quantity) as profit FROM sales 
+        JOIN products ON sales.product_id = products.id`);
+      
+      // Low stock (threshold <= 5)
+      const [lowStock] = await db.execute(`SELECT COUNT(*) as count FROM products WHERE current_stock <= 5`);
+      
+      res.json({
+        totalProducts: totalProducts[0]?.count || 0,
+        totalSales: totalSales[0]?.total || 0,
+        totalProfit: totalProfit[0]?.profit || 0,
+        lowStock: lowStock[0]?.count || 0
+      });
+    } catch (err) {
+      console.error("Error fetching summary:", err);
+      res.status(500).json({ error: "Failed to fetch summary" });
+    }
+  });
+  
+
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
 
 const inventoryRoutes = require('./routes/inventory');

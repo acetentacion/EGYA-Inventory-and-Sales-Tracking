@@ -2,36 +2,131 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>EGYA Inventory - Products</title>
+  <title>Products - EGYA Inventory</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <script src="js/common.js"></script>
+  <script src="js/products.js"></script>
+  
 </head>
-<body class="bg-gray-50">
-  <!-- Navigation -->
-  <nav class="bg-white shadow-md px-6 py-4 flex justify-between items-center">
-    <div class="text-xl font-bold text-blue-700">EGYA Inventory</div>
-    <div class="space-x-6">
-      <a href="dashboard.html" class="text-gray-700 hover:text-blue-600">Dashboard</a>
-      <a href="products.html" class="text-blue-600 font-semibold">Products</a>
-      <a href="sales.html" class="text-gray-700 hover:text-blue-600">Sales</a>
-    </div>
-  </nav>
+<body class="flex h-screen bg-gray-100">
+
+  <!-- Sidebar -->
+  <aside class="w-64 bg-gray-800 text-white flex flex-col fixed h-full">
+    <div class="p-4 text-2xl font-bold border-b border-gray-700">EGYA Inventory</div>
+    <nav class="flex-1 p-4 space-y-2">
+      <a href="index.html" class="block p-2 rounded hover:bg-gray-700">📊 Dashboard</a>
+      <a href="products.html" class="block p-2 rounded bg-gray-700">📦 Products</a>
+      <a href="sales.html" class="block p-2 rounded hover:bg-gray-700">🛒 Sales</a>
+      <a href="analytics.html" class="block p-2 rounded hover:bg-gray-700">📈 Analytics</a>
+    </nav>
+  </aside>
 
   <!-- Main Content -->
-  <main class="p-6">
-    <h1 class="text-3xl font-bold mb-6">Products</h1>
+  <main class="flex-1 ml-64 p-6 overflow-y-auto">
+    <div class="flex justify-between items-center mb-4">
+      <h1 class="text-2xl font-bold">Products</h1>
+      <button onclick="openProductModal()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded">
+        + Add Product
+      </button>
+    </div>
 
-    <!-- Search & Filter -->
-    <div class="flex gap-4 mb-4">
-      <input type="text" id="product-search" placeholder="Search..." class="flex-1 p-2 border rounded">
-      <select id="category-filter" class="border rounded p-2">
+    <!-- Search + Filter -->
+    <div class="flex gap-4 mb-6">
+      <input type="text" id="product-search" placeholder="Search products..." 
+             class="border p-2 rounded flex-1">
+      <select id="category-filter" class="border p-2 rounded">
         <option value="">All Categories</option>
       </select>
     </div>
 
-    <!-- Product Grid -->
-    <div id="product-list" class="grid grid-cols-1 md:grid-cols-3 gap-4">
-      <!-- Product cards will go here -->
+    <!-- Product List -->
+    <div id="product-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      <!-- Products load here -->
     </div>
   </main>
+
+  <!-- 🕓 Sales History Modal -->
+<div id="history-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+    <div class="bg-white p-6 rounded-lg max-w-xl w-full shadow-lg relative">
+      <h2 class="text-xl font-bold mb-4" id="history-title">Sales History</h2>
+      <div id="history-content" class="space-y-2 max-h-96 overflow-y-auto">
+        <!-- Sales history rows will be injected here -->
+      </div>
+      <button id="close-history" class="absolute top-2 right-2 text-gray-600 hover:text-black text-xl">&times;</button>
+    </div>
+  </div>
+  
+  <!-- 📦 Restock Modal -->
+  <div id="restock-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+    <div class="bg-white p-6 rounded-lg max-w-sm w-full shadow-lg relative">
+      <h2 class="text-xl font-bold mb-4" id="restock-title">Restock Product</h2>
+      <form id="restock-form" class="space-y-4">
+        <input type="hidden" id="restock-product-id">
+        <div>
+          <label for="restock-quantity" class="block text-sm font-medium">Quantity to Add:</label>
+          <input type="number" id="restock-quantity" class="border w-full p-2 rounded" required min="1">
+        </div>
+        <div class="flex justify-end gap-2">
+          <button type="button" id="close-restock" class="text-gray-500 hover:text-black">Cancel</button>
+          <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded">Restock</button>
+        </div>
+      </form>
+      <button id="close-restock-x" class="absolute top-2 right-2 text-gray-600 hover:text-black text-xl">&times;</button>
+    </div>
+  </div>
+  
+  <!-- ✏️ Product Modal -->
+  <div id="product-modal" 
+     class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center z-50">
+  <div class="bg-white p-6 rounded shadow-lg w-full max-w-md relative">
+    <button id="close-product-x" class="absolute top-2 right-2 text-gray-600 hover:text-black text-xl">&times;</button>
+    <h2 id="product-modal-title" class="text-lg font-bold mb-4">Add Product</h2>
+    <form id="product-form" class="space-y-4">
+      
+      <div>
+        <label for="name" class="block text-sm font-medium text-gray-700">Product Name</label>
+        <input type="text" id="name" class="w-full border p-2 rounded" required>
+      </div>
+
+      <div>
+        <label for="sku" class="block text-sm font-medium text-gray-700">SKU</label>
+        <input type="text" id="sku" class="w-full border p-2 rounded" required>
+      </div>
+
+      <div>
+        <label for="category" class="block text-sm font-medium text-gray-700">Category</label>
+        <input type="text" id="category" class="w-full border p-2 rounded" required>
+      </div>
+
+      <div>
+        <label for="cost_price" class="block text-sm font-medium text-gray-700">Cost Price</label>
+        <input type="number" id="cost_price" class="w-full border p-2 rounded" required>
+      </div>
+
+      <div>
+        <label for="sell_price" class="block text-sm font-medium text-gray-700">Sell Price</label>
+        <input type="number" id="sell_price" class="w-full border p-2 rounded" required>
+      </div>
+
+      <div>
+        <label for="current_stock" class="block text-sm font-medium text-gray-700">Stock</label>
+        <input type="number" id="current_stock" class="w-full border p-2 rounded" required>
+      </div>
+
+      <input type="hidden" id="product_id">
+
+      <div class="flex justify-end gap-2">
+        <button type="button" id="close-product" class="px-4 py-2 bg-gray-300 rounded">Cancel</button>
+        <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded">Save</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+
+  
+
+<script src="js/products.js"></script>
+
 </body>
 </html>

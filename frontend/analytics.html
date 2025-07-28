@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Analytics - EGYA Inventory</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body class="flex h-screen bg-gray-100">
+
+  <!-- Sidebar -->
+  <aside class="w-64 bg-gray-800 text-white flex flex-col fixed h-full">
+    <div class="p-4 text-2xl font-bold border-b border-gray-700">EGYA Inventory</div>
+    <nav class="flex-1 p-4 space-y-2">
+      <a href="index.html" class="block p-2 rounded hover:bg-gray-700">📊 Dashboard</a>
+      <a href="products.html" class="block p-2 rounded hover:bg-gray-700">📦 Products</a>
+      <a href="sales.html" class="block p-2 rounded hover:bg-gray-700">🛒 Sales</a>
+      <a href="analytics.html" class="block p-2 rounded bg-gray-700">📈 Analytics</a>
+    </nav>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="flex-1 ml-64 p-6 overflow-y-auto">
+    <h1 class="text-2xl font-bold mb-4">Analytics</h1>
+
+    <!-- Tabs -->
+    <div class="border-b mb-4 flex space-x-4">
+      <button class="tab-btn border-b-2 border-blue-500 text-blue-600 pb-2" data-tab="sales-tab">Sales</button>
+      <button class="tab-btn text-gray-500 hover:text-blue-600 pb-2" data-tab="products-tab">Products</button>
+      <button class="tab-btn text-gray-500 hover:text-blue-600 pb-2" data-tab="profit-tab">Profit</button>
+    </div>
+
+    <!-- Tab Contents -->
+    <div id="sales-tab" class="tab-content">
+      <canvas id="salesChart" height="120"></canvas>
+    </div>
+
+    <div id="products-tab" class="tab-content hidden">
+      <canvas id="productChart" height="120"></canvas>
+    </div>
+
+    <!-- 📊 Profit Tab -->
+<div id="profit-tab" class="tab-content hidden">
+    <h2 class="text-xl font-bold mb-4">Profit Overview</h2>
+    <canvas id="profitChart" height="100"></canvas>
+  
+    <!-- 📄 Profit Table -->
+    <div class="mt-6">
+      <table class="w-full table-auto border border-gray-300">
+        <thead class="bg-gray-100">
+          <tr>
+            <th class="border px-4 py-2 text-left">Product</th>
+            <th class="border px-4 py-2 text-right">Units Sold</th>
+            <th class="border px-4 py-2 text-right">Total Sales (₱)</th>
+            <th class="border px-4 py-2 text-right">Total Profit (₱)</th>
+          </tr>
+        </thead>
+        <tbody id="profitTableBody" class="text-sm">
+          <!-- Dynamic Rows -->
+        </tbody>
+      </table>
+    </div>
+  </div>
+  
+  </main>
+
+<script src="js/analytics.js"></script>
+</body>
+</html>
