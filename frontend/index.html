@@ -24,14 +24,15 @@
         </select>
       </div>
       
-    
-    <div id="product-list" class="space-y-2">
-      <!-- Products will be loaded here -->
+      <!-- 🔴 Low Stock Alert -->
+<div id="low-stock-alert" class="hidden mb-4 p-3 rounded-lg bg-red-100 border border-red-300 text-red-800 font-semibold">
+    ⚠️ <span id="low-stock-count">0</span> products are low on stock!
+  </div>
+  
+      <div id="product-list" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <!-- Product cards will be injected here -->
+      </div>
       
-      
-
-      
-    </div>
 
     <div class="mt-8">
         <h2 class="text-lg font-bold mb-2">🧾 Sales History</h2>
@@ -39,9 +40,16 @@
       </div>
       
 
-    <form id="product-form" class="bg-white shadow-md rounded p-4 mt-6 space-y-4">
-        <h2 class="text-xl font-bold">➕ Add Product</h2>
-      
+    <!-- 🗂️ Tab Navigation -->
+<div class="bg-white shadow-md rounded mb-6">
+    <div class="flex border-b">
+      <button id="tab-add-product" class="flex-1 p-3 text-center font-semibold border-b-2 border-blue-500 bg-blue-100">Add Product</button>
+      <button id="tab-record-sale" class="flex-1 p-3 text-center font-semibold border-b-2 border-transparent hover:bg-gray-100">Record Sale</button>
+    </div>
+  
+    <!-- 📦 Add Product Form -->
+    <div id="tab-content-product" class="p-4">
+      <form id="product-form" class="space-y-4">
         <input type="text" id="name" placeholder="Product Name" class="w-full border p-2 rounded" required>
         <input type="text" id="sku" placeholder="SKU" class="w-full border p-2 rounded" required>
         <input type="text" id="category" placeholder="Category" class="w-full border p-2 rounded" required>
@@ -49,22 +57,19 @@
         <input type="number" id="sell_price" placeholder="Sell Price" class="w-full border p-2 rounded" required>
         <input type="number" id="current_stock" placeholder="Initial Stock" class="w-full border p-2 rounded" required>
         <input type="hidden" id="product_id">
-
-      
         <button type="submit" id="add-button" class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded">
           Add Product
         </button>
       </form>
-      
-      <form id="sales-form" class="bg-white shadow-md rounded p-4 mt-6 space-y-4">
-        <h2 class="text-xl font-bold">🛒 Record Sale</h2>
-      
+    </div>
+  
+    <!-- 🛒 Record Sale Form -->
+    <div id="tab-content-sale" class="p-4 hidden">
+      <form id="sales-form" class="space-y-4">
         <select id="sale_product" class="w-full border p-2 rounded" required>
           <option value="">Select Product</option>
         </select>
-      
         <input type="number" id="sale_quantity" placeholder="Quantity Sold" class="w-full border p-2 rounded" required>
-        
         <select id="sale_platform" class="w-full border p-2 rounded" required>
           <option value="">Select Platform</option>
           <option value="Shopee">Shopee</option>
@@ -73,16 +78,61 @@
           <option value="Instagram">Instagram</option>
           <option value="Walk-in">Walk-in</option>
         </select>
-      
         <button type="submit" class="bg-purple-500 hover:bg-purple-600 text-white px-4 py-2 rounded">
           Record Sale
         </button>
       </form>
-    
+    </div>
+  </div>
+  
+      
+      
+    <!-- 🔢 Summary Cards -->
+<div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+    <div class="bg-white rounded-xl p-4 shadow text-center">
+      <h3 class="text-sm text-gray-500">Total Products</h3>
+      <p class="text-2xl font-bold text-blue-600" id="total-products">0</p>
+    </div>
+    <div class="bg-white rounded-xl p-4 shadow text-center">
+      <h3 class="text-sm text-gray-500">Total Sales</h3>
+      <p class="text-2xl font-bold text-green-600" id="total-sales">₱0</p>
+    </div>
+    <div class="bg-white rounded-xl p-4 shadow text-center">
+      <h3 class="text-sm text-gray-500">Total Profit</h3>
+      <p class="text-2xl font-bold text-purple-600" id="total-profit">₱0</p>
+    </div>
+    <div class="bg-white rounded-xl p-4 shadow text-center">
+      <h3 class="text-sm text-gray-500">Low Stock</h3>
+      <p class="text-2xl font-bold text-red-600" id="low-stock">0</p>
+    </div>
+  </div>
+  
       <div class="p-4 mt-4 bg-white rounded shadow">
-        <h2 class="text-xl font-bold mb-2">Sales Overview</h2>
+        <div class="flex justify-between items-center mb-2">
+          <h2 class="text-xl font-bold">Sales Overview</h2>
+          <select id="salesChartType" class="border p-1 rounded">
+            <option value="platform">By Platform</option>
+            <option value="product">By Product</option>
+          </select>
+        </div>
         <canvas id="salesChart" height="100"></canvas>
       </div>
+      
+
+      
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+        <div class="bg-white p-4 rounded shadow">
+          <h3 class="text-lg font-bold mb-2">📊 Profit by Platform</h3>
+          <div id="platform-profit" class="space-y-1 text-sm text-gray-700"></div>
+        </div>
+        <div class="bg-white p-4 rounded shadow">
+          <h3 class="text-lg font-bold mb-2">🛍️ Profit by Product</h3>
+          <div id="product-profit" class="space-y-1 text-sm text-gray-700"></div>
+        </div>
+      </div>
+
+      
       <div class="text-right my-4">
         <button id="exportCSV" class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600">
           Export Sales Report (CSV)
@@ -94,7 +144,60 @@
   </div>
 
   
+<!-- 🕓 Sales History Modal -->
+<div id="history-modal" class="fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center z-50 hidden">
+    <div class="bg-white rounded-xl shadow-lg w-full max-w-lg p-6 relative">
+      <!-- Close Button -->
+      <button id="close-history" 
+              class="absolute top-3 right-3 text-gray-400 hover:text-gray-700 text-2xl font-bold">&times;</button>
+      
+      <!-- Title -->
+      <h2 id="history-title" class="text-2xl font-bold text-gray-800 mb-4">
+        Sales History
+      </h2>
+  
+      <!-- Sales Content -->
+      <div id="history-content" 
+           class="space-y-3 max-h-96 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
+        <!-- History will be injected here -->
+      </div>
+    </div>
+  </div>
+  
+  <!-- 📦 Restock Modal -->
+  <div id="restock-modal" class="fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center z-50 hidden">
+    <div class="bg-white rounded-xl shadow-lg w-full max-w-sm p-6 relative">
+      <!-- Close Button -->
+      <button id="close-restock-x" 
+              class="absolute top-3 right-3 text-gray-400 hover:text-gray-700 text-2xl font-bold">&times;</button>
+      
+      <!-- Title -->
+      <h2 id="restock-title" class="text-2xl font-bold text-gray-800 mb-4">
+        Restock Product
+      </h2>
+  
+      <!-- Restock Form -->
+      <form id="restock-form" class="space-y-4">
+        <input type="hidden" id="restock-product-id">
+  
+        <div>
+          <label for="restock-quantity" class="block text-sm font-medium text-gray-600">Quantity to Add</label>
+          <input type="number" id="restock-quantity" class="border rounded-lg p-2 w-full focus:ring-2 focus:ring-blue-300" required min="1">
+        </div>
+  
+        <div class="flex justify-end gap-2">
+          <button type="button" id="close-restock" 
+                  class="px-4 py-2 rounded-lg bg-gray-200 hover:bg-gray-300 text-gray-700">Cancel</button>
+          <button type="submit" 
+                  class="px-4 py-2 rounded-lg bg-blue-100 hover:bg-blue-200 text-blue-800">Restock</button>
+        </div>
+      </form>
+    </div>
+  </div>
+  
 
   <script src="js/main.js"></script>
+  
+  
 </body>
 </html>

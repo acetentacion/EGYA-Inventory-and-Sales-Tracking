@@ -111,4 +111,33 @@ router.get('/categories', async (req, res) => {
       res.status(500).json({ error: err.message });
     }
   });
+
+// POST /api/products/:id/restock
+router.post('/:id/restock', async (req, res) => {
+    const { id } = req.params;
+    const { quantity, note } = req.body;
+  
+    if (!quantity || isNaN(quantity) || quantity <= 0) {
+      return res.status(400).json({ error: 'Invalid quantity' });
+    }
+  
+    try {
+      // Update product stock
+      await db.query(
+        'UPDATE products SET current_stock = current_stock + ? WHERE id = ?',
+        [quantity, id]
+      );
+  
+      // Log the restock in inventory_logs
+      await db.query(
+        'INSERT INTO inventory_logs (product_id, type, quantity, note) VALUES (?, ?, ?, ?)',
+        [id, 'restock', quantity, note || 'Manual restock']
+      );
+  
+      res.json({ message: 'Stock added successfully' });
+    } catch (err) {
+      console.error('Restock error:', err.message);
+      res.status(500).json({ error: 'Failed to add stock' });
+    }
+  });
   

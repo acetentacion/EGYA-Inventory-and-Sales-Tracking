@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>EGYA Inventory - Products</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50">
+  <!-- Navigation -->
+  <nav class="bg-white shadow-md px-6 py-4 flex justify-between items-center">
+    <div class="text-xl font-bold text-blue-700">EGYA Inventory</div>
+    <div class="space-x-6">
+      <a href="dashboard.html" class="text-gray-700 hover:text-blue-600">Dashboard</a>
+      <a href="products.html" class="text-blue-600 font-semibold">Products</a>
+      <a href="sales.html" class="text-gray-700 hover:text-blue-600">Sales</a>
+    </div>
+  </nav>
+
+  <!-- Main Content -->
+  <main class="p-6">
+    <h1 class="text-3xl font-bold mb-6">Products</h1>
+
+    <!-- Search & Filter -->
+    <div class="flex gap-4 mb-4">
+      <input type="text" id="product-search" placeholder="Search..." class="flex-1 p-2 border rounded">
+      <select id="category-filter" class="border rounded p-2">
+        <option value="">All Categories</option>
+      </select>
+    </div>
+
+    <!-- Product Grid -->
+    <div id="product-list" class="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <!-- Product cards will go here -->
+    </div>
+  </main>
+</body>
+</html>
