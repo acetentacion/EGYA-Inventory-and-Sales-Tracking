@@ -5,16 +5,32 @@ const db = require('../db');
 
 router.get('/sales-overview', async (req, res) => {
   try {
-    const [rows] = await db.query(`
-      SELECT platform, SUM(quantity) as total_sold 
-      FROM sales 
-      GROUP BY platform
-    `);
-    res.json(rows);
+    const type = req.query.type || 'platform';
+
+    if (type === 'product') {
+      // Sales grouped by product
+      const [rows] = await db.query(`
+        SELECT p.name AS product_name, SUM(s.quantity) AS total_sold 
+        FROM sales s
+        JOIN products p ON s.product_id = p.id
+        GROUP BY p.id
+      `);
+      return res.json(rows);
+    } else {
+      // Sales grouped by platform
+      const [rows] = await db.query(`
+        SELECT platform, SUM(quantity) as total_sold 
+        FROM sales 
+        GROUP BY platform
+      `);
+      return res.json(rows);
+    }
   } catch (err) {
+    console.error(err);
     res.status(500).json({ error: 'Failed to fetch sales data' });
   }
 });
+
 
 // Sales by Product
 router.get('/sales-by-product', async (req, res) => {
@@ -116,7 +132,7 @@ router.get('/summary', async (req, res) => {
 
     // Low stock product list
     const [low_stock_products] = await db.execute(`
-      SELECT name, current_stock 
+      SELECT id, name, current_stock 
       FROM products 
       WHERE current_stock <= 3
       ORDER BY current_stock ASC

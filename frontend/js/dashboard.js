@@ -1,16 +1,11 @@
-// ========================
-// CONFIG
-// ========================
 //const API_BASE = 'http://localhost:3000/api';
 let salesChartInstance = null; // store the chart instance
 
-// ========================
-// DASHBOARD SUMMARY
-// ========================
+
 async function loadDashboardSummary() {
     try {
       const res = await fetch(`${API_BASE}/analytics/summary`);
-      const data = await res.json(); // ✅ data is defined here
+      const data = await res.json();
       console.log("Summary Data:", data);
   
       document.getElementById('total-products').textContent = data.total_products;
@@ -18,7 +13,7 @@ async function loadDashboardSummary() {
       document.getElementById('total-profit').textContent = `₱${data.total_profit}`;
       document.getElementById('low-stock').textContent = data.low_stock_count;
   
-      // 🔴 Low stock alert handling
+      // Low stock alert
       const alertBox = document.getElementById('low-stock-alert');
       const countSpan = document.getElementById('low-stock-count');
       const listEl = document.getElementById('low-stock-list');
@@ -26,8 +21,15 @@ async function loadDashboardSummary() {
       if (data.low_stock_count > 0) {
         countSpan.textContent = data.low_stock_count;
         listEl.innerHTML = data.low_stock_products
-          .map(p => `<li>${p.name} (${p.current_stock} left)</li>`)
-          .join('');
+          .map(p => `
+            <li>
+              <a href="products.html?highlightId=${p.id}" 
+                class="text-blue-600 hover:underline">
+                ${p.name} (${p.current_stock} left)
+              </a>
+            </li>
+          `).join('');
+
         alertBox.classList.remove('hidden');
       } else {
         alertBox.classList.add('hidden');
@@ -38,53 +40,80 @@ async function loadDashboardSummary() {
     }
   }
   
+  
 
-// ========================
-// SALES CHART
-// ========================
-async function loadSalesChart(type = 'platform') {
+// async function loadSalesChart(type = 'platform') {
+//   try {
+//     const res = await fetch(`${API_BASE}/analytics/sales-overview?type=${type}`);
+//     const data = await res.json();
+//     const ctx = document.getElementById('salesChart').getContext('2d');
+
+
+//     if (salesChartInstance) {
+//       salesChartInstance.destroy();
+//     }
+
+//     salesChartInstance = new Chart(ctx, {
+//       type: 'bar',
+//       data: {
+//         labels: data.map(d => type === 'platform' ? d.platform : d.product_name),
+//         datasets: [{
+//           label: type === 'platform' ? 'Sales by Platform' : 'Sales by Product',
+//           data: data.map(d => d.total_sold),
+//           backgroundColor: 'rgba(59, 130, 246, 0.6)'
+//         }]
+//       },
+//       options: {
+//         responsive: true,
+//         plugins: {
+//           legend: { display: false },
+//           title: { display: true, text: type === 'platform' ? 'Sales by Platform' : 'Sales by Product' }
+//         }
+//       }
+//     }); 
+//   } catch (err) {
+//     console.error('Error loading chart:', err);
+//   } 
+// }
+
+async function loadSalesData(type = 'platform') {
   try {
     const res = await fetch(`${API_BASE}/analytics/sales-overview?type=${type}`);
     const data = await res.json();
-    const ctx = document.getElementById('salesChart').getContext('2d');
+    const tableBody = document.getElementById('salesDataTable');
 
-    // Destroy previous chart before creating a new one
-    if (salesChartInstance) {
-      salesChartInstance.destroy();
-    }
+    tableBody.innerHTML = '';
 
-    salesChartInstance = new Chart(ctx, {
-      type: 'bar',
-      data: {
-        labels: data.map(d => type === 'platform' ? d.platform : d.product_name),
-        datasets: [{
-          label: type === 'platform' ? 'Sales by Platform' : 'Sales by Product',
-          data: data.map(d => d.total_sold),
-          backgroundColor: 'rgba(59, 130, 246, 0.6)'
-        }]
-      },
-      options: {
-        responsive: true,
-        plugins: {
-          legend: { display: false },
-          title: { display: true, text: type === 'platform' ? 'Sales by Platform' : 'Sales by Product' }
-        }
-      }
+    data.forEach(row => {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td class="p-2">${type === 'platform' ? row.platform : row.product_name}</td>
+        <td class="p-2">${row.total_sold}</td>
+      `;
+      tableBody.appendChild(tr);
     });
+    
+
   } catch (err) {
-    console.error('Error loading chart:', err);
+    console.error('Error loading sales data:', err);
   }
 }
 
-// ========================
-// INIT
-// ========================
+document.addEventListener('DOMContentLoaded', () => {
+  loadSalesData();
+
+  document.getElementById('salesDataType').addEventListener('change', (e) => {
+    loadSalesData(e.target.value);
+  });
+});
+
+
 document.addEventListener('DOMContentLoaded', () => {
   loadDashboardSummary();
-  loadSalesChart();
+  //loadSalesChart();
 
-  document.getElementById('salesChartType').addEventListener('change', (e) => {
-    loadSalesChart(e.target.value);
-  });
+  // document.getElementById('salesChartType').addEventListener('change', (e) => {
+  //   //loadSalesChart(e.target.value);
+  // });
 });
 

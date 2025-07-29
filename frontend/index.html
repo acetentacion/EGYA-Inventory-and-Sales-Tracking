@@ -51,24 +51,41 @@
   
 
 
-    <!-- Low Stock Alert -->
-    <div id="low-stock-alert" 
+<!-- Low Stock Alert -->
+<div id="low-stock-alert" 
      class="hidden mb-4 p-3 rounded-lg bg-red-100 border border-red-300 text-red-800 font-semibold">
   ⚠️ <span id="low-stock-count">0</span> products are low on stock!
-  <ul id="low-stock-list" class="mt-2 list-disc list-inside text-sm text-red-700"></ul>
+  <ul id="low-stock-list" class="mt-2 text-sm pl-5 list-disc"></ul>
 </div>
 
+
     
-    <div class="bg-white rounded-xl shadow p-4">
-      <div class="flex justify-between items-center mb-4">
-        <h2 class="text-lg font-bold">Sales Overview</h2>
-        <select id="salesChartType" class="border p-1 rounded">
-          <option value="platform">By Platform</option>
-          <option value="product">By Product</option>
-        </select>
-      </div>
-      <canvas id="salesChart" height="100"></canvas>
-    </div> 
+    <!-- Sales Overview Without Chart -->
+<div class="bg-white rounded-xl shadow p-4">
+  <div class="flex justify-between items-center mb-4">
+    <h2 class="text-lg font-bold">Sales Overview</h2>
+    <select id="salesDataType" class="border p-1 rounded">
+      <option value="platform">By Platform</option>
+      <option value="product">By Product</option>
+    </select>
+  </div>
+
+  <!-- Sales Data Table -->
+  <div class="overflow-x-auto">
+    <table class="min-w-full text-sm text-left">
+      <thead>
+        <tr class="border-b">
+          <th class="p-2">Name</th>
+          <th class="p-2">Units Sold</th>
+        </tr>
+      </thead>
+      <tbody id="salesDataTable" class="divide-y">
+        <!-- Sales rows will load here -->
+      </tbody>
+    </table>
+  </div>
+</div>
+
 
   </main>
 </body>
