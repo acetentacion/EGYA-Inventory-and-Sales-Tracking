@@ -176,4 +176,59 @@ router.get('/summary', async (req, res) => {
   });
   
 
+  // 🆕 Recent Activity (last 10 actions)
+  router.get('/recent-activity', async (req, res) => {
+    try {
+      const [rows] = await db.execute(`
+        SELECT 'Restock' AS type, p.name AS product_name, il.quantity, il.note, il.created_at AS date
+        FROM inventory_logs il
+        JOIN products p ON il.product_id = p.id
+        
+        UNION ALL
+        
+        SELECT 'Sale' AS type, p.name AS product_name, s.quantity, s.platform AS note, s.created_at AS date
+        FROM sales s
+        JOIN products p ON s.product_id = p.id
+        
+        UNION ALL
+        
+        SELECT 'New Product' AS type, name AS product_name, 0 AS quantity, 'Added to inventory' AS note, created_at AS date
+        FROM products
+        
+        ORDER BY date DESC
+        LIMIT 10
+      `);
+  
+      res.json(rows);
+    } catch (err) {
+      console.error('Error fetching recent activity:', err);
+      res.status(500).json({ error: 'Failed to load recent activity' });
+    }
+  });
+
+  // 📈 Best Selling Product
+// 📈 Top 3 Best Selling Products
+router.get('/best-selling', async (req, res) => {
+  try {
+    const [rows] = await db.execute(`
+      SELECT p.id, p.name, SUM(s.quantity) AS total_sold
+      FROM sales s
+      JOIN products p ON s.product_id = p.id
+      GROUP BY p.id
+      ORDER BY total_sold DESC
+      LIMIT 3
+    `);
+
+    res.json(rows);
+  } catch (err) {
+    console.error('Error fetching best selling products:', err);
+    res.status(500).json({ error: 'Failed to fetch best selling products' });
+  }
+});
+
+
+
+  
+
+
 module.exports = router;

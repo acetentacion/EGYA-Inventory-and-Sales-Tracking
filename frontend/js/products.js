@@ -2,7 +2,7 @@
 // const API_BASE = 'http://localhost:3000/api';
 
 // ================= Restock Tracking =================
-var currentRestockProduct = window.currentRestockProduct || null;
+//var currentRestockProduct = window.currentRestockProduct || null;
 
 
 // ================= Fetch & Render Products =================
@@ -117,6 +117,10 @@ async function editProduct(id) {
 }
 
 // ================= Restock =================
+// ================= Restock =================
+// Use let instead of var to avoid redeclaration conflicts
+let currentRestockProduct = null;
+
 function openRestockModal(product) {
   currentRestockProduct = product;
   document.getElementById('restock-product-id').value = product.id;
@@ -124,17 +128,36 @@ function openRestockModal(product) {
   document.getElementById('restock-modal').classList.remove('hidden');
 }
 
-document.getElementById('restock-form')?.addEventListener('submit', async (e) => {
-  e.preventDefault();
-  const quantity = parseInt(document.getElementById('restock-quantity').value);
-  await fetch(`${API_BASE}/products/${currentRestockProduct.id}/restock`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ quantity })
+function closeRestockModal() {
+  document.getElementById('restock-modal').classList.add('hidden');
+  currentRestockProduct = null;
+}
+
+// Attach listeners after DOM loads
+document.addEventListener('DOMContentLoaded', () => {
+  const closeRestockBtn = document.getElementById('close-restock');
+  const closeRestockX = document.getElementById('close-restock-x');
+  const restockForm = document.getElementById('restock-form');
+
+  closeRestockBtn?.addEventListener('click', closeRestockModal);
+  closeRestockX?.addEventListener('click', closeRestockModal);
+
+  restockForm?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const quantity = parseInt(document.getElementById('restock-quantity').value);
+    if (!currentRestockProduct) return;
+    
+    await fetch(`${API_BASE}/products/${currentRestockProduct.id}/restock`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ quantity })
+    });
+
+    closeRestockModal();
+    loadProducts();
   });
-  closeRestockModal();
-  loadProducts();
 });
+
 
 function closeRestockModal() {
   document.getElementById('restock-modal').classList.add('hidden');
@@ -168,9 +191,14 @@ function openSalesHistory(productId, productName) {
     });
 }
 
-document.getElementById('close-history')?.addEventListener('click', () => {
+function closeHistoryModal() {
   document.getElementById('history-modal').classList.add('hidden');
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('close-history')?.addEventListener('click', closeHistoryModal);
 });
+
 
 // ================= Category Dropdown =================
 async function populateCategoryDropdown() {
@@ -204,4 +232,24 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('category-filter')?.addEventListener('change', (e) => {
     loadProducts(document.getElementById('product-search').value, e.target.value);
   });
+});
+
+// ================= Product Modal =================
+function openProductModal(isEdit = false) {
+  const modalTitle = document.getElementById('product-modal-title');
+  modalTitle.textContent = isEdit ? 'Edit Product' : 'Add Product';
+  
+  document.getElementById('product-modal').classList.remove('hidden');
+}
+
+function closeProductModal() {
+  document.getElementById('product-modal').classList.add('hidden');
+  document.getElementById('product-form').reset();
+  document.getElementById('product_id').value = '';
+}
+
+// Attach close buttons
+document.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('close-product')?.addEventListener('click', closeProductModal);
+  document.getElementById('close-product-x')?.addEventListener('click', closeProductModal);
 });

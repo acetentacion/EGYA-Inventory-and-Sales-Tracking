@@ -117,3 +117,76 @@ document.addEventListener('DOMContentLoaded', () => {
   // });
 });
 
+async function loadRecentActivity() {
+  try {
+    const res = await fetch(`${API_BASE}/analytics/recent-activity`);
+    const data = await res.json();
+
+    const container = document.getElementById('recent-activity');
+    container.innerHTML = '';
+
+    if (!data.length) {
+      container.innerHTML = `<li class="text-gray-500">No recent activity.</li>`;
+      return;
+    }
+
+    data.forEach(log => {
+      const li = document.createElement('li');
+      li.className = "p-2 border-b flex justify-between items-center";
+      li.innerHTML = `
+        <span>
+          <strong>${log.type}:</strong> ${log.product_name}
+          ${log.quantity > 0 ? `(${log.quantity})` : ''}
+          <span class="text-xs text-gray-500">- ${log.note}</span>
+        </span>
+        <span class="text-xs text-gray-400">${new Date(log.date).toLocaleString()}</span>
+      `;
+      container.appendChild(li);
+    });
+  } catch (err) {
+    console.error('Error loading recent activity:', err);
+  }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  loadDashboardSummary();
+  loadRecentActivity();
+  //loadSalesChart();
+  loadBestSellingProducts();
+});
+
+async function loadBestSellingProducts() {
+  try {
+    const res = await fetch(`${API_BASE}/analytics/best-selling`);
+    const products = await res.json();
+
+    const listEl = document.getElementById('best-selling-list');
+    if (!listEl) {
+      console.error("Element #best-selling-list not found in HTML");
+      return;
+    }
+
+    listEl.innerHTML = '';
+
+    if (!products.length) {
+      listEl.innerHTML = '<li>No sales yet</li>';
+      return;
+    }
+
+    products.forEach(p => {
+      listEl.innerHTML += `
+        <li>
+          <a href="products.html?highlightId=${p.id}" 
+             class="text-blue-600 hover:underline">
+            ${p.name} — ${p.total_sold} units sold
+          </a>
+        </li>
+      `;
+    });
+
+  } catch (err) {
+    console.error('Error fetching best selling product:', err);
+  }
+}
+
+

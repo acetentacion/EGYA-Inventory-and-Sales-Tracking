@@ -30,8 +30,9 @@
     <!-- Summary Cards (Responsive) -->
 
     
-<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-    <div class="bg-white rounded-xl p-4 shadow text-center">
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+      <div class="bg-white rounded-lg shadow hover:shadow-lg transition p-6 flex flex-col justify-between">
+    
       <h3 class="text-sm text-gray-500">Total Products</h3>
       <p class="text-2xl font-bold text-blue-600" id="total-products">0</p>
     </div>
@@ -49,19 +50,29 @@
     </div>
   </div>
   
+<!-- 🏆 Top 3 Best Selling Products -->
+<!-- 🏆 Top 3 Best Selling Products -->
+<div class="bg-white rounded-xl shadow p-4 mt-4">
+  <h2 class="text-lg font-bold mb-2">🏆 Top 3 Best Selling Products</h2>
+  <ul id="best-selling-list" class="list-disc pl-5 text-gray-700">
+    <li>Loading...</li>
+  </ul>
+</div>
+
+
 
 
 <!-- Low Stock Alert -->
-<div id="low-stock-alert" 
-     class="hidden mb-4 p-3 rounded-lg bg-red-100 border border-red-300 text-red-800 font-semibold">
+<div id="low-stock-alert" class="hidden mb-6 p-4 rounded-lg bg-red-100 border border-red-300 text-red-800 font-medium shadow">
+
   ⚠️ <span id="low-stock-count">0</span> products are low on stock!
   <ul id="low-stock-list" class="mt-2 text-sm pl-5 list-disc"></ul>
 </div>
 
-
     
     <!-- Sales Overview Without Chart -->
-<div class="bg-white rounded-xl shadow p-4">
+    <div class="bg-white rounded-lg shadow hover:shadow-lg transition p-6">
+
   <div class="flex justify-between items-center mb-4">
     <h2 class="text-lg font-bold">Sales Overview</h2>
     <select id="salesDataType" class="border p-1 rounded">
@@ -84,6 +95,14 @@
       </tbody>
     </table>
   </div>
+</div>
+
+<!-- Recent Activity -->
+<div class="bg-white rounded-xl shadow p-4 mt-6">
+  <h2 class="text-lg font-bold mb-4">Recent Activity</h2>
+  <ul id="recent-activity" class="space-y-2 text-sm text-gray-700">
+    <!-- Items will be loaded here -->
+  </ul>
 </div>
 
 
