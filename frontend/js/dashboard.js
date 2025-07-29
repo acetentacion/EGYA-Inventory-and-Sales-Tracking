@@ -189,4 +189,28 @@ async function loadBestSellingProducts() {
   }
 }
 
+async function loadProductMovement() {
+  try {
+    const res = await fetch(`${API_BASE}/analytics/movement-status`);
+    const data = await res.json();
+
+    const fastList = document.getElementById('fast-moving-list');
+    const slowList = document.getElementById('slow-moving-list');
+
+    fastList.innerHTML = data.fastMoving.length
+      ? data.fastMoving.map(p => `<li>${p.name} (${p.total_sold_last_30_days} sold)</li>`).join('')
+      : '<li class="text-gray-500">No fast-moving products</li>';
+
+    slowList.innerHTML = data.slowMoving.length
+      ? data.slowMoving.map(p => `<li>${p.name} (${p.total_sold_last_30_days || 0} sold)</li>`).join('')
+      : '<li class="text-gray-500">No slow-moving products</li>';
+
+  } catch (err) {
+    console.error('Error fetching movement status:', err);
+  }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  loadProductMovement();
+});
 

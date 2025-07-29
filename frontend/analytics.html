@@ -1,11 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <title>Analytics - EGYA Inventory</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
+
 <body class="flex h-screen bg-gray-100">
 
   <!-- Sidebar -->
@@ -40,30 +42,31 @@
     </div>
 
     <!-- 📊 Profit Tab -->
-<div id="profit-tab" class="tab-content hidden">
-    <h2 class="text-xl font-bold mb-4">Profit Overview</h2>
-    <canvas id="profitChart" height="100"></canvas>
-  
-    <!-- 📄 Profit Table -->
-    <div class="mt-6">
-      <table class="w-full table-auto border border-gray-300">
-        <thead class="bg-gray-100">
-          <tr>
-            <th class="border px-4 py-2 text-left">Product</th>
-            <th class="border px-4 py-2 text-right">Units Sold</th>
-            <th class="border px-4 py-2 text-right">Total Sales (₱)</th>
-            <th class="border px-4 py-2 text-right">Total Profit (₱)</th>
-          </tr>
-        </thead>
-        <tbody id="profitTableBody" class="text-sm">
-          <!-- Dynamic Rows -->
-        </tbody>
-      </table>
+    <div id="profit-tab" class="tab-content hidden">
+      <h2 class="text-xl font-bold mb-4">Profit Overview</h2>
+      <canvas id="profitChart" height="100"></canvas>
+
+      <!-- 📄 Profit Table -->
+      <div class="mt-6">
+        <table class="w-full table-auto border border-gray-300">
+          <thead class="bg-gray-100">
+            <tr>
+              <th class="border px-4 py-2 text-left">Product</th>
+              <th class="border px-4 py-2 text-right">Units Sold</th>
+              <th class="border px-4 py-2 text-right">Total Sales (₱)</th>
+              <th class="border px-4 py-2 text-right">Total Profit (₱)</th>
+            </tr>
+          </thead>
+          <tbody id="profitTableBody" class="text-sm">
+            <!-- Dynamic Rows -->
+          </tbody>
+        </table>
+      </div>
     </div>
-  </div>
-  
+
   </main>
 
-<script src="js/analytics.js"></script>
+  <script src="js/analytics.js"></script>
 </body>
+
 </html>

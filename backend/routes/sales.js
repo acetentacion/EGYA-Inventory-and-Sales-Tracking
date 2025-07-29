@@ -31,7 +31,13 @@ router.post('/', async (req, res) => {
 router.get('/', async (req, res) => {
   try {
     const [rows] = await db.execute(`
-      SELECT s.id, s.quantity, s.platform, s.date, p.name AS product_name
+      SELECT 
+        s.id, 
+        s.product_id,   -- ✅ Added this line
+        s.quantity, 
+        s.platform, 
+        s.date, 
+        p.name AS product_name
       FROM sales s
       JOIN products p ON s.product_id = p.id
       ORDER BY s.date DESC
@@ -43,6 +49,7 @@ router.get('/', async (req, res) => {
     res.status(500).json({ error: 'Failed to load sales' });
   }
 });
+
 
 // GET /api/sales/export
 router.get('/export', async (req, res) => {
@@ -84,5 +91,94 @@ router.get('/export', async (req, res) => {
     }
   });
   
+// GET Monthly Sales & Profit Summary
+router.get('/summary/:month', async (req, res) => {
+  try {
+    const month = req.params.month; // format: YYYY-MM
+    const [rows] = await db.execute(`
+      SELECT 
+        COALESCE(SUM(s.quantity * p.sell_price), 0) AS total_sales,
+        COALESCE(SUM(s.quantity * (p.sell_price - p.cost_price)), 0) AS total_profit
+      FROM sales s
+      JOIN products p ON s.product_id = p.id
+      WHERE DATE_FORMAT(s.date, '%Y-%m') = ?
+    `, [month]);
+
+    res.json(rows[0]);
+  } catch (err) {
+    console.error('Error fetching monthly summary:', err);
+    res.status(500).json({ error: 'Failed to fetch monthly summary' });
+  }
+});
+
+router.get('/monthly-trend/:month', async (req, res) => {
+  const { month } = req.params;
+  try {
+    const [rows] = await db.execute(`
+      SELECT 
+        DATE(s.date) AS date,
+        SUM(s.quantity * p.sell_price) AS total_sales,
+        SUM(s.quantity * (p.sell_price - p.cost_price)) AS total_profit
+      FROM sales s
+      JOIN products p ON s.product_id = p.id
+      WHERE DATE_FORMAT(s.date, '%Y-%m') = ?
+      GROUP BY DATE(s.date)
+      ORDER BY DATE(s.date)
+    `, [month]);
+    res.json(rows);
+  } catch (err) {
+    console.error('Error fetching monthly trend:', err);
+    res.status(500).json({ error: 'Failed to fetch monthly trend' });
+  }
+});
+
+// router.get('/sales', async (req, res) => {
+//   try {
+//     const [rows] = await db.query(`
+//       SELECT 
+//         s.id, 
+//         s.product_id,         -- ✅ Needed for history
+//         p.name AS product_name, 
+//         s.quantity, 
+//         s.platform, 
+//         s.date
+//       FROM sales s
+//       JOIN products p ON s.product_id = p.id
+//       ORDER BY s.date DESC
+//     `);
+//     res.json(rows);
+//   } catch (err) {
+//     console.error("Error fetching sales:", err);
+//     res.status(500).json({ error: "Failed to fetch sales" });
+//   }
+// });
+
+// // ===== Get sales history for a specific product =====
+// router.get('/history/:id', async (req, res) => {
+//   const productId = req.params.id;
+//   try {
+//     const [rows] = await db.query(`
+//       SELECT 
+//         s.quantity, 
+//         s.platform, 
+//         s.date
+//       FROM sales s
+//       WHERE s.product_id = ?
+//       ORDER BY s.date DESC
+//     `, [productId]);
+
+//     res.json(rows);
+//   } catch (err) {
+//     console.error("Error fetching sales history:", err);
+//     res.status(500).json({ error: "Failed to fetch sales history" });
+//   }
+// });
+
+
+
+
+
+
+
 
 module.exports = router;

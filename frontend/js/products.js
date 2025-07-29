@@ -90,12 +90,36 @@ async function saveProduct(e) {
 }
 
 // ================= Delete Product =================
-async function deleteProduct(id) {
-  if (confirm('Delete this product?')) {
-    await fetch(`${API_BASE}/products/${id}`, { method: 'DELETE' });
-    loadProducts();
-  }
+let productToDelete = null;
+
+function deleteProduct(id) {
+  productToDelete = id;
+  document.getElementById('delete-message').textContent =
+    'Are you sure you want to delete this product?';
+  document.getElementById('delete-modal').classList.remove('hidden');
 }
+
+async function confirmDelete() {
+  if (!productToDelete) return;
+  
+  await fetch(`${API_BASE}/products/${productToDelete}`, { method: 'DELETE' });
+  closeDeleteModal();
+  loadProducts();
+}
+
+function closeDeleteModal() {
+  document.getElementById('delete-modal').classList.add('hidden');
+  productToDelete = null;
+}
+
+// ✅ Attach after DOM is ready
+document.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('cancel-delete')?.addEventListener('click', closeDeleteModal);
+  document.getElementById('close-delete-x')?.addEventListener('click', closeDeleteModal);
+  document.getElementById('confirm-delete')?.addEventListener('click', confirmDelete);
+});
+
+
 
 // ================= Edit Product =================
 async function editProduct(id) {
@@ -253,3 +277,4 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('close-product')?.addEventListener('click', closeProductModal);
   document.getElementById('close-product-x')?.addEventListener('click', closeProductModal);
 });
+

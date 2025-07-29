@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <title>Dashboard - EGYA Inventory</title>
@@ -7,8 +8,9 @@
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="js/common.js" defer></script>
   <script src="js/dashboard.js" defer></script>
-  
+
 </head>
+
 <body class="flex h-screen bg-gray-100">
 
   <!-- Sidebar -->
@@ -29,83 +31,99 @@
     <!-- Summary Cards -->
     <!-- Summary Cards (Responsive) -->
 
-    
+
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
       <div class="bg-white rounded-lg shadow hover:shadow-lg transition p-6 flex flex-col justify-between">
-    
-      <h3 class="text-sm text-gray-500">Total Products</h3>
-      <p class="text-2xl font-bold text-blue-600" id="total-products">0</p>
+
+        <h3 class="text-sm text-gray-500">Total Products</h3>
+        <p class="text-2xl font-bold text-blue-600" id="total-products">0</p>
+      </div>
+      <div class="bg-white rounded-xl p-4 shadow text-center">
+        <h3 class="text-sm text-gray-500">Total Sales</h3>
+        <p class="text-2xl font-bold text-green-600" id="total-sales">₱0</p>
+      </div>
+      <div class="bg-white rounded-xl p-4 shadow text-center">
+        <h3 class="text-sm text-gray-500">Total Profit</h3>
+        <p class="text-2xl font-bold text-purple-600" id="total-profit">₱0</p>
+      </div>
+      <div class="bg-white rounded-xl p-4 shadow text-center">
+        <h3 class="text-sm text-gray-500">Low Stock</h3>
+        <p class="text-2xl font-bold text-red-600" id="low-stock">0</p>
+      </div>
     </div>
-    <div class="bg-white rounded-xl p-4 shadow text-center">
-      <h3 class="text-sm text-gray-500">Total Sales</h3>
-      <p class="text-2xl font-bold text-green-600" id="total-sales">₱0</p>
+
+    <!-- 🏆 Top 3 Best Selling Products -->
+    <div class="bg-white rounded-xl shadow p-4 mt-4">
+      <h2 class="text-lg font-bold mb-2">🏆 Top 3 Best Selling Products</h2>
+      <ul id="best-selling-list" class="list-disc pl-5 text-gray-700">
+        <li>Loading...</li>
+      </ul>
     </div>
-    <div class="bg-white rounded-xl p-4 shadow text-center">
-      <h3 class="text-sm text-gray-500">Total Profit</h3>
-      <p class="text-2xl font-bold text-purple-600" id="total-profit">₱0</p>
+
+    <!-- Fast vs Slow Moving -->
+    <div class="bg-white rounded-xl shadow p-4 mt-6">
+      <h2 class="text-lg font-bold mb-3">Fast vs Slow Moving Products (Last 30 Days)</h2>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <h3 class="font-semibold text-green-600">🚀 Fast-Moving</h3>
+          <ul id="fast-moving-list" class="list-disc pl-5 text-sm"></ul>
+        </div>
+        <div>
+          <h3 class="font-semibold text-red-600">🐢 Slow-Moving</h3>
+          <ul id="slow-moving-list" class="list-disc pl-5 text-sm"></ul>
+        </div>
+      </div>
     </div>
-    <div class="bg-white rounded-xl p-4 shadow text-center">
-      <h3 class="text-sm text-gray-500">Low Stock</h3>
-      <p class="text-2xl font-bold text-red-600" id="low-stock">0</p>
+
+
+
+
+    <!-- Low Stock Alert -->
+
+    <div id="low-stock-alert"
+      class="hidden mt-6 mb-6 p-4 rounded-lg bg-red-100 border border-red-300 text-red-800 font-medium shadow">
+      ⚠️ <span id="low-stock-count">0</span> products are low on stock!
+      <ul id="low-stock-list" class="mt-2 text-sm pl-5 list-disc"></ul>
     </div>
-  </div>
-  
-<!-- 🏆 Top 3 Best Selling Products -->
-<!-- 🏆 Top 3 Best Selling Products -->
-<div class="bg-white rounded-xl shadow p-4 mt-4">
-  <h2 class="text-lg font-bold mb-2">🏆 Top 3 Best Selling Products</h2>
-  <ul id="best-selling-list" class="list-disc pl-5 text-gray-700">
-    <li>Loading...</li>
-  </ul>
-</div>
 
 
-
-
-<!-- Low Stock Alert -->
-<div id="low-stock-alert" class="hidden mb-6 p-4 rounded-lg bg-red-100 border border-red-300 text-red-800 font-medium shadow">
-
-  ⚠️ <span id="low-stock-count">0</span> products are low on stock!
-  <ul id="low-stock-list" class="mt-2 text-sm pl-5 list-disc"></ul>
-</div>
-
-    
     <!-- Sales Overview Without Chart -->
     <div class="bg-white rounded-lg shadow hover:shadow-lg transition p-6">
 
-  <div class="flex justify-between items-center mb-4">
-    <h2 class="text-lg font-bold">Sales Overview</h2>
-    <select id="salesDataType" class="border p-1 rounded">
-      <option value="platform">By Platform</option>
-      <option value="product">By Product</option>
-    </select>
-  </div>
+      <div class="flex justify-between items-center mb-4">
+        <h2 class="text-lg font-bold">Sales Overview</h2>
+        <select id="salesDataType" class="border p-1 rounded">
+          <option value="platform">By Platform</option>
+          <option value="product">By Product</option>
+        </select>
+      </div>
 
-  <!-- Sales Data Table -->
-  <div class="overflow-x-auto">
-    <table class="min-w-full text-sm text-left">
-      <thead>
-        <tr class="border-b">
-          <th class="p-2">Name</th>
-          <th class="p-2">Units Sold</th>
-        </tr>
-      </thead>
-      <tbody id="salesDataTable" class="divide-y">
-        <!-- Sales rows will load here -->
-      </tbody>
-    </table>
-  </div>
-</div>
+      <!-- Sales Data Table -->
+      <div class="overflow-x-auto">
+        <table class="min-w-full text-sm text-left">
+          <thead>
+            <tr class="border-b">
+              <th class="p-2">Name</th>
+              <th class="p-2">Units Sold</th>
+            </tr>
+          </thead>
+          <tbody id="salesDataTable" class="divide-y">
+            <!-- Sales rows will load here -->
+          </tbody>
+        </table>
+      </div>
+    </div>
 
-<!-- Recent Activity -->
-<div class="bg-white rounded-xl shadow p-4 mt-6">
-  <h2 class="text-lg font-bold mb-4">Recent Activity</h2>
-  <ul id="recent-activity" class="space-y-2 text-sm text-gray-700">
-    <!-- Items will be loaded here -->
-  </ul>
-</div>
+    <!-- Recent Activity -->
+    <div class="bg-white rounded-xl shadow p-4 mt-6">
+      <h2 class="text-lg font-bold mb-4">Recent Activity</h2>
+      <ul id="recent-activity" class="space-y-2 text-sm text-gray-700">
+        <!-- Items will be loaded here -->
+      </ul>
+    </div>
 
 
   </main>
 </body>
+
 </html>

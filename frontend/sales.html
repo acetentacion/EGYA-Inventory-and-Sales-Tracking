@@ -1,11 +1,15 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <title>Sales - EGYA Inventory</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
   <script src="js/common.js"></script>
 </head>
+
 <body class="flex h-screen bg-gray-100">
 
   <!-- Sidebar -->
@@ -47,6 +51,25 @@
       </form>
     </div>
 
+    <div class="bg-white p-4 rounded shadow mb-4 flex items-center gap-4">
+      <label for="month-selector" class="font-medium">Select Month:</label>
+      <input type="month" id="month-selector" class="border p-2 rounded">
+
+
+      <div id="monthly-summary" class="bg-white p-4 rounded shadow mb-4">
+        <h3 class="text-lg font-bold">Monthly Sales & Profit</h3>
+        <p>Total Sales: <span id="monthly-sales" class="font-semibold text-green-600">₱0</span></p>
+        <p>Total Profit: <span id="monthly-profit" class="font-semibold text-blue-600">₱0</span></p>
+      </div>
+    </div>
+
+    <div class="bg-white p-4 rounded shadow mt-4">
+      <h2 class="text-lg font-bold mb-4">Monthly Sales & Profit Trend</h2>
+      <canvas id="monthlyTrendChart" height="100"></canvas>
+    </div>
+
+
+
     <!-- Sales History -->
     <div class="bg-white rounded shadow p-4">
       <h2 class="text-lg font-bold mb-4">Sales History</h2>
@@ -67,7 +90,8 @@
     </div>
   </div>
 
-<script src="js/sales.js"></script>
+  <script src="js/sales.js"></script>
 
 </body>
+
 </html>

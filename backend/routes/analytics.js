@@ -227,6 +227,36 @@ router.get('/best-selling', async (req, res) => {
 });
 
 
+// 📦 Fast vs Slow Moving Products
+router.get('/movement-status', async (req, res) => {
+  try {
+    const [rows] = await db.execute(`
+      SELECT p.id, p.name, SUM(s.quantity) AS total_sold_last_30_days
+      FROM products p
+      LEFT JOIN sales s ON p.id = s.product_id 
+        AND s.date >= DATE_SUB(CURDATE(), INTERVAL 30 DAY)
+      GROUP BY p.id
+    `);
+
+    const fastMoving = [];
+    const slowMoving = [];
+
+    rows.forEach(product => {
+      if ((product.total_sold_last_30_days || 0) >= 10) {
+        fastMoving.push(product);
+      } else {
+        slowMoving.push(product);
+      }
+    });
+
+    res.json({ fastMoving, slowMoving });
+  } catch (err) {
+    console.error('Error fetching movement status:', err);
+    res.status(500).json({ error: 'Failed to fetch product movement status' });
+  }
+});
+
+
 
   
 
