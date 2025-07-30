@@ -4,6 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <title>Products - EGYA Inventory</title>
+  <script src="js/auth.js"></script>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="js/common.js"></script>
   <script src="js/products.js"></script>
@@ -20,6 +21,17 @@
       <a href="products.html" class="block p-2 rounded bg-gray-700">📦 Products</a>
       <a href="sales.html" class="block p-2 rounded hover:bg-gray-700">🛒 Sales</a>
       <a href="analytics.html" class="block p-2 rounded hover:bg-gray-700">📈 Analytics</a>
+      <button id="logout-btn" class="mt-auto bg-red-500 hover:bg-red-600 text-white p-2 rounded w-full">
+        Logout
+      </button>
+      
+      <script>
+      document.getElementById('logout-btn').addEventListener('click', () => {
+        localStorage.removeItem('token');
+        window.location.href = 'login.html';
+      });
+      </script>
+      
     </nav>
   </aside>
 

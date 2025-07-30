@@ -81,4 +81,7 @@ app.get('/api/sales/history/:productId', async (req, res) => {
   const returnsRoutes = require('./routes/returns');
   app.use('/api/returns', returnsRoutes);
   
+  const authRoutes = require('./routes/auth');
+app.use('/api/auth', authRoutes);
+
   
