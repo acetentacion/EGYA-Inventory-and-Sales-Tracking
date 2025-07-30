@@ -78,5 +78,7 @@ app.get('/api/sales/history/:productId', async (req, res) => {
   });
   
 
-
+  const returnsRoutes = require('./routes/returns');
+  app.use('/api/returns', returnsRoutes);
+  
   

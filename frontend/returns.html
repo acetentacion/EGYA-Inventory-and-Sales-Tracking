@@ -1,0 +1,15 @@
+<h2 class="text-2xl font-bold mb-4">Returns Management</h2>
+
+<!-- Form to request return -->
+<form id="return-form" class="bg-white p-4 rounded shadow mb-4">
+  <select id="sale_id" class="border p-2 rounded w-full"></select>
+  <input type="number" id="return_quantity" placeholder="Quantity" class="border p-2 rounded w-full my-2">
+  <input type="text" id="return_reason" placeholder="Reason" class="border p-2 rounded w-full my-2">
+  <button type="submit" class="bg-red-500 text-white px-4 py-2 rounded">Submit Return</button>
+</form>
+
+<!-- Return List -->
+<div id="return-list" class="bg-white p-4 rounded shadow">
+  <h3 class="font-bold mb-2">Return Requests</h3>
+  <div id="returns"></div>
+</div>

@@ -51,32 +51,56 @@
       </form>
     </div>
 
-    <div class="bg-white p-4 rounded shadow mb-4 flex items-center gap-4">
-      <label for="month-selector" class="font-medium">Select Month:</label>
-      <input type="month" id="month-selector" class="border p-2 rounded">
+    <div class="flex space-x-4 border-b mb-4">
+      <button id="tab-sales" class="p-2 border-b-2 border-purple-500 font-semibold">Sales</button>
+      <button id="tab-returns" class="p-2 hover:border-purple-500">Returns</button>
+    </div>
 
-
-      <div id="monthly-summary" class="bg-white p-4 rounded shadow mb-4">
-        <h3 class="text-lg font-bold">Monthly Sales & Profit</h3>
-        <p>Total Sales: <span id="monthly-sales" class="font-semibold text-green-600">₱0</span></p>
-        <p>Total Profit: <span id="monthly-profit" class="font-semibold text-blue-600">₱0</span></p>
+    
+    <!-- Sales Section -->
+    <div id="sales-section">
+      <!-- Existing sales form & history here -->
+      <div class="bg-white p-4 rounded shadow mb-4 flex items-center gap-4">
+        <label for="month-selector" class="font-medium">Select Month:</label>
+        <input type="month" id="month-selector" class="border p-2 rounded">
+  
+  
+        <div id="monthly-summary" class="bg-white p-4 rounded shadow mb-4">
+          <h3 class="text-lg font-bold">Monthly Sales & Profit</h3>
+          <p>Total Sales: <span id="monthly-sales" class="font-semibold text-green-600">₱0</span></p>
+          <p>Total Profit: <span id="monthly-profit" class="font-semibold text-blue-600">₱0</span></p>
+        </div>
+      </div>
+  
+      <div class="bg-white p-4 rounded shadow mt-4">
+        <h2 class="text-lg font-bold mb-4">Monthly Sales & Profit Trend</h2>
+        <canvas id="monthlyTrendChart" height="100"></canvas>
+      </div>
+  
+  
+  
+      <!-- Sales History -->
+      <div class="bg-white rounded shadow p-4">
+        <h2 class="text-lg font-bold mb-4">Sales History</h2>
+        <div id="sales-list" class="space-y-2">
+          <!-- Sales history will load here -->
+        </div>
       </div>
     </div>
 
-    <div class="bg-white p-4 rounded shadow mt-4">
-      <h2 class="text-lg font-bold mb-4">Monthly Sales & Profit Trend</h2>
-      <canvas id="monthlyTrendChart" height="100"></canvas>
+    <div id="returns-section" class="hidden">
+      <h2 class="text-lg font-bold mb-4">Return Management</h2>
+    
+      <form id="return-form" class="space-y-2 bg-gray-100 p-4 rounded mb-4">
+        <select id="return-sale-id" class="w-full border p-2 rounded"></select>
+        <input type="number" id="return-quantity" placeholder="Quantity" class="w-full border p-2 rounded">
+        <input type="text" id="return-reason" placeholder="Reason" class="w-full border p-2 rounded">
+        <button type="submit" class="bg-red-500 text-white px-4 py-2 rounded">Submit Return</button>
+      </form>
+    
+      <div id="returns-list" class="space-y-2"></div>
     </div>
-
-
-
-    <!-- Sales History -->
-    <div class="bg-white rounded shadow p-4">
-      <h2 class="text-lg font-bold mb-4">Sales History</h2>
-      <div id="sales-list" class="space-y-2">
-        <!-- Sales history will load here -->
-      </div>
-    </div>
+    
   </main>
 
   <!-- Sales History Modal -->

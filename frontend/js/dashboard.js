@@ -89,15 +89,16 @@ async function loadSalesData(type = 'platform') {
       tr.innerHTML = `
         <td class="p-2">${type === 'platform' ? row.platform : row.product_name}</td>
         <td class="p-2">${row.total_sold}</td>
+        <td class="p-2">${row.total_returned ?? 0}</td> <!-- ✅ New Returns column -->
       `;
       tableBody.appendChild(tr);
     });
-    
 
   } catch (err) {
     console.error('Error loading sales data:', err);
   }
 }
+
 
 document.addEventListener('DOMContentLoaded', () => {
   loadSalesData();
@@ -213,4 +214,3 @@ async function loadProductMovement() {
 document.addEventListener('DOMContentLoaded', () => {
   loadProductMovement();
 });
-

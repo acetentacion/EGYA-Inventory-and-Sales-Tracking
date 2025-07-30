@@ -203,3 +203,65 @@ document.getElementById('month-selector')?.addEventListener('change', (e) => {
     loadMonthlyTrend(month);
   }
 });
+
+// ===== TAB SWITCHING =====
+document.getElementById('tab-sales').addEventListener('click', () => {
+  document.getElementById('sales-section').classList.remove('hidden');
+  document.getElementById('returns-section').classList.add('hidden');
+});
+document.getElementById('tab-returns').addEventListener('click', () => {
+  document.getElementById('returns-section').classList.remove('hidden');
+  document.getElementById('sales-section').classList.add('hidden');
+  loadReturns();
+  loadReturnSalesDropdown();
+});
+
+// ===== LOAD RETURN SALES DROPDOWN =====
+async function loadReturnSalesDropdown() {
+  const res = await fetch(`${API_BASE}/sales`);
+  const sales = await res.json();
+  const dropdown = document.getElementById('return-sale-id');
+  dropdown.innerHTML = '<option value="">Select Sale</option>';
+  sales.forEach(sale => {
+    dropdown.innerHTML += `<option value="${sale.id}" data-product="${sale.product_id}">
+      ${sale.product_name} (${sale.quantity} sold on ${sale.platform})
+    </option>`;
+  });
+}
+
+// ===== LOAD RETURNS LIST =====
+async function loadReturns() {
+  const res = await fetch(`${API_BASE}/returns`);
+  const returns = await res.json();
+  const container = document.getElementById('returns-list');
+  container.innerHTML = returns.map(r => `
+    <div class="p-2 bg-white rounded shadow flex justify-between">
+      <span>${r.product_name} (${r.quantity}) - ${r.reason} - ${r.status}</span>
+      ${r.status === 'Pending' ? `<button onclick="approveReturn(${r.id})" class="bg-green-500 text-white px-2 py-1 rounded">Approve</button>` : ''}
+    </div>
+  `).join('');
+}
+
+// ===== APPROVE RETURN =====
+async function approveReturn(id) {
+  await fetch(`${API_BASE}/returns/${id}/approve`, { method: 'POST' });
+  loadReturns();
+}
+
+// ===== SUBMIT RETURN FORM =====
+document.getElementById('return-form').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const sale_id = document.getElementById('return-sale-id').value;
+  const product_id = document.querySelector(`#return-sale-id option[value="${sale_id}"]`).dataset.product;
+  const quantity = document.getElementById('return-quantity').value;
+  const reason = document.getElementById('return-reason').value;
+
+  await fetch(`${API_BASE}/returns`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ sale_id, product_id, quantity, reason })
+  });
+
+  loadReturns();
+});
+

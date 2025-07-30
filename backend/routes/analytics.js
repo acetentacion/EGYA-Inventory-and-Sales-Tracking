@@ -8,20 +8,28 @@ router.get('/sales-overview', async (req, res) => {
     const type = req.query.type || 'platform';
 
     if (type === 'product') {
-      // Sales grouped by product
+      // Sales grouped by product with returns
       const [rows] = await db.query(`
-        SELECT p.name AS product_name, SUM(s.quantity) AS total_sold 
-        FROM sales s
-        JOIN products p ON s.product_id = p.id
+        SELECT 
+          p.name AS product_name, 
+          SUM(s.quantity) AS total_sold,
+          IFNULL(SUM(r.quantity), 0) AS total_returned
+        FROM products p
+        LEFT JOIN sales s ON s.product_id = p.id
+        LEFT JOIN returns r ON r.product_id = p.id
         GROUP BY p.id
       `);
       return res.json(rows);
     } else {
-      // Sales grouped by platform
+      // Sales grouped by platform with returns
       const [rows] = await db.query(`
-        SELECT platform, SUM(quantity) as total_sold 
-        FROM sales 
-        GROUP BY platform
+        SELECT 
+          s.platform, 
+          SUM(s.quantity) AS total_sold,
+          IFNULL(SUM(r.quantity), 0) AS total_returned
+        FROM sales s
+        LEFT JOIN returns r ON r.product_id = s.product_id
+        GROUP BY s.platform
       `);
       return res.json(rows);
     }
@@ -30,6 +38,7 @@ router.get('/sales-overview', async (req, res) => {
     res.status(500).json({ error: 'Failed to fetch sales data' });
   }
 });
+
 
 
 // Sales by Product
@@ -53,19 +62,21 @@ router.get('/sales-by-product', async (req, res) => {
 // GET /api/analytics/total-profit
 router.get('/total-profit', async (req, res) => {
   try {
-    const [rows] = await db.execute(`
+    const [[{ total_profit }]] = await db.execute(`
       SELECT 
-        SUM((p.sell_price - p.cost_price) * s.quantity) AS total_profit
+        SUM(s.quantity * (p.sell_price - p.cost_price))
+        - COALESCE(SUM(r.quantity * (p.sell_price - p.cost_price)),0) AS total_profit
       FROM sales s
       JOIN products p ON s.product_id = p.id
+      LEFT JOIN returns r ON s.product_id = r.product_id
     `);
-
-    res.json({ total_profit: rows[0].total_profit || 0 });
+    res.json({ total_profit: total_profit || 0 });
   } catch (err) {
     console.error('Error calculating total profit:', err);
     res.status(500).json({ error: 'Failed to calculate total profit' });
   }
 });
+
 
 // 🔢 Profit by Platform
 router.get('/profit-by-platform', async (req, res) => {
@@ -109,18 +120,32 @@ router.get('/summary', async (req, res) => {
       SELECT COUNT(*) AS total_products FROM products
     `);
 
-    // Total sales
+    // ✅ Total sales minus returns
     const [[{ total_sales }]] = await db.execute(`
-      SELECT SUM(quantity * sell_price) AS total_sales 
-      FROM sales 
-      JOIN products ON sales.product_id = products.id
+      SELECT 
+        SUM(s.quantity * p.sell_price) 
+        - IFNULL(SUM(r.quantity * p.sell_price), 0) AS total_sales
+      FROM products p
+      LEFT JOIN sales s ON s.product_id = p.id
+      LEFT JOIN returns r ON r.product_id = p.id
     `);
 
-    // Total profit
+    // ✅ Total profit minus returns
     const [[{ total_profit }]] = await db.execute(`
-      SELECT SUM((sell_price - cost_price) * quantity) AS total_profit 
-      FROM sales 
-      JOIN products ON sales.product_id = products.id
+      SELECT 
+        SUM((p.sell_price - p.cost_price) * s.quantity)
+        - IFNULL(SUM((p.sell_price - p.cost_price) * r.quantity), 0) AS total_profit
+      FROM products p
+      LEFT JOIN sales s ON s.product_id = p.id
+      LEFT JOIN returns r ON r.product_id = p.id
+    `);
+
+    // ✅ Total returns (quantity * sell price)
+    const [[{ total_returns }]] = await db.execute(`
+      SELECT 
+        IFNULL(SUM(r.quantity * p.sell_price), 0) AS total_returns
+      FROM returns r
+      JOIN products p ON r.product_id = p.id
     `);
 
     // Low stock count
@@ -143,8 +168,9 @@ router.get('/summary', async (req, res) => {
       total_products: total_products || 0,
       total_sales: total_sales || 0,
       total_profit: total_profit || 0,
+      total_returns: total_returns || 0, // ✅ Add returns value
       low_stock_count: low_stock_count || 0,
-      low_stock_products // 👈 Now added
+      low_stock_products
     });
 
   } catch (err) {
@@ -152,6 +178,9 @@ router.get('/summary', async (req, res) => {
     res.status(500).json({ error: 'Failed to load summary' });
   }
 });
+
+
+
 
   
   router.get('/profit-overview', async (req, res) => {
@@ -176,25 +205,31 @@ router.get('/summary', async (req, res) => {
   });
   
 
-  // 🆕 Recent Activity (last 10 actions)
   router.get('/recent-activity', async (req, res) => {
     try {
       const [rows] = await db.execute(`
-        SELECT 'Restock' AS type, p.name AS product_name, il.quantity, il.note, il.created_at AS date
-        FROM inventory_logs il
-        JOIN products p ON il.product_id = p.id
-        
-        UNION ALL
-        
-        SELECT 'Sale' AS type, p.name AS product_name, s.quantity, s.platform AS note, s.created_at AS date
-        FROM sales s
-        JOIN products p ON s.product_id = p.id
-        
-        UNION ALL
-        
-        SELECT 'New Product' AS type, name AS product_name, 0 AS quantity, 'Added to inventory' AS note, created_at AS date
-        FROM products
-        
+        SELECT type, product_name, quantity, note, date FROM (
+          SELECT 'Restock' AS type, p.name AS product_name, il.quantity, il.note, il.created_at AS date
+          FROM inventory_logs il
+          JOIN products p ON il.product_id = p.id
+  
+          UNION ALL
+          
+          SELECT 'Sale' AS type, p.name AS product_name, s.quantity, s.platform AS note, s.created_at AS date
+          FROM sales s
+          JOIN products p ON s.product_id = p.id
+          
+          UNION ALL
+          
+          SELECT 'New Product' AS type, name AS product_name, 0 AS quantity, 'Added to inventory' AS note, created_at AS date
+          FROM products
+  
+          UNION ALL
+          
+          SELECT 'Return' AS type, p.name AS product_name, r.quantity, r.reason AS note, r.created_at AS date
+          FROM returns r
+          JOIN products p ON r.product_id = p.id
+        ) AS combined
         ORDER BY date DESC
         LIMIT 10
       `);
@@ -205,6 +240,7 @@ router.get('/summary', async (req, res) => {
       res.status(500).json({ error: 'Failed to load recent activity' });
     }
   });
+  
 
   // 📈 Best Selling Product
 // 📈 Top 3 Best Selling Products
