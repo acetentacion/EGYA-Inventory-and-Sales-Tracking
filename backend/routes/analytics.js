@@ -292,6 +292,22 @@ router.get('/movement-status', async (req, res) => {
   }
 });
 
+// 📦 Total Stock per Category
+router.get('/stock-by-category', async (req, res) => {
+  try {
+    const [rows] = await db.execute(`
+      SELECT category, SUM(current_stock) AS total_stock
+      FROM products
+      GROUP BY category
+      ORDER BY total_stock DESC
+    `);
+    res.json(rows);
+  } catch (err) {
+    console.error('Error fetching stock by category:', err);
+    res.status(500).json({ error: 'Failed to fetch stock by category' });
+  }
+});
+
 
 
   

@@ -73,21 +73,33 @@ async function saveProduct(e) {
   e.preventDefault();
   const product = {
     name: document.getElementById('name').value,
-    sku: document.getElementById('sku').value,
     category: document.getElementById('category').value,
     cost_price: parseFloat(document.getElementById('cost_price').value),
     sell_price: parseFloat(document.getElementById('sell_price').value),
     current_stock: parseInt(document.getElementById('current_stock').value)
   };
-  
+
   const id = document.getElementById('product_id').value;
   const method = id ? 'PUT' : 'POST';
   const url = `${API_BASE}/products${id ? '/' + id : ''}`;
 
-  await fetch(url, { method, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(product) });
+  const res = await fetch(url, {
+    method,
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(product)
+  });
+
+  if (!res.ok) {
+    const err = await res.json();
+    console.error("Error saving product:", err);
+    alert(err.error || "Failed to save product");
+    return;
+  }
+
   closeProductModal();
   loadProducts();
 }
+
 
 // ================= Delete Product =================
 let productToDelete = null;

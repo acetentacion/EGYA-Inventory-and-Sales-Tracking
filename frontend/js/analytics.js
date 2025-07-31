@@ -109,3 +109,34 @@ function renderChart(canvasId, label, labels, values) {
     }
   });
 }
+
+async function loadStockByCategory() {
+  try {
+    const res = await fetch(`${API_BASE}/analytics/stock-by-category`);
+    const data = await res.json();
+
+    const tableBody = document.getElementById('stockByCategoryTable');
+    tableBody.innerHTML = '';
+
+    if (!data.length) {
+      tableBody.innerHTML = `<tr><td colspan="2" class="p-2 text-gray-500">No data available</td></tr>`;
+      return;
+    }
+
+    data.forEach(row => {
+      tableBody.innerHTML += `
+        <tr>
+          <td class="p-2 border">${row.category}</td>
+          <td class="p-2 border">${row.total_stock}</td>
+        </tr>
+      `;
+    });
+
+  } catch (err) {
+    console.error('Error loading stock by category:', err);
+  }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  loadStockByCategory();
+});

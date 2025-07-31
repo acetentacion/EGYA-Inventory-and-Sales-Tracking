@@ -14,27 +14,35 @@
 
 <body class="flex h-screen bg-gray-100">
 
-  <!-- Sidebar -->
   <aside class="w-64 bg-gray-800 text-white flex flex-col fixed h-full">
-    <div class="p-4 text-2xl font-bold border-b border-gray-700">EGYA Inventory</div>
+    <div class="p-4 text-2xl font-bold border-b border-gray-700">
+      EGYA Inventory
+    </div>
+  
+    <!-- Navigation Links -->
     <nav class="flex-1 p-4 space-y-2">
-      <a href="index.html" class="block p-2 rounded bg-gray-700">📊 Dashboard</a>
+      <a href="index.html" class="block p-2 rounded hover:bg-gray-700">📊 Dashboard</a>
       <a href="products.html" class="block p-2 rounded hover:bg-gray-700">📦 Products</a>
       <a href="sales.html" class="block p-2 rounded hover:bg-gray-700">🛒 Sales</a>
       <a href="analytics.html" class="block p-2 rounded hover:bg-gray-700">📈 Analytics</a>
-      <button id="logout-btn" class="mt-auto bg-red-500 hover:bg-red-600 text-white p-2 rounded w-full">
+    </nav>
+  
+    <!-- Logout Button at Bottom -->
+    <div class="p-4 border-t border-gray-700">
+      <button id="logout-btn" class="w-full bg-red-500 hover:bg-red-600 text-white py-2 rounded">
         Logout
       </button>
-      
-      <script>
+    </div>
+
+    <script>
       document.getElementById('logout-btn').addEventListener('click', () => {
-        localStorage.removeItem('token');
-        window.location.href = 'login.html';
-      });
-      </script>
-      
-    </nav>
+  localStorage.removeItem('token'); // Clear stored token
+  window.location.href = 'login.html'; // Redirect to login
+});
+
+    </script>
   </aside>
+  
 
   <!-- Main Content -->
   <main class="flex-1 ml-64 p-6 overflow-y-auto">

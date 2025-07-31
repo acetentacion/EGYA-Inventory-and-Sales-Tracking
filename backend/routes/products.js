@@ -14,23 +14,33 @@ router.get('/', async (req, res) => {
 module.exports = router;
 
 router.post('/', async (req, res) => {
-    const { name, sku, category, cost_price, sell_price, current_stock } = req.body;
-  
-    if (!name || !sku || !category) {
-      return res.status(400).json({ error: 'Missing fields' });
-    }
-  
-    try {
-      const [result] = await db.query(
-        'INSERT INTO products (name, sku, category, cost_price, sell_price, current_stock) VALUES (?, ?, ?, ?, ?, ?)',
-        [name, sku, category, cost_price, sell_price, current_stock]
-      );
-      res.json({ message: 'Product added', product_id: result.insertId });
-    } catch (err) {
-      console.error('Insert Error:', err.message);
-      res.status(500).json({ error: 'Failed to add product' });
-    }
-  });
+  const { name, category, cost_price, sell_price, current_stock } = req.body;
+
+  if (!name || !category || !cost_price || !sell_price || current_stock == null) {
+    return res.status(400).json({ error: 'Missing fields' });
+  }
+
+  try {
+    // Insert product without SKU
+    const [result] = await db.execute(
+      'INSERT INTO products (name, category, cost_price, sell_price, current_stock) VALUES (?, ?, ?, ?, ?)',
+      [name, category, cost_price, sell_price, current_stock]
+    );
+
+    const productId = result.insertId;
+
+    // Generate SKU: First 3 letters of category + ID
+    const sku = `${category.slice(0, 3).toUpperCase()}-${productId.toString().padStart(4, '0')}`;
+
+    await db.execute('UPDATE products SET sku = ? WHERE id = ?', [sku, productId]);
+
+    res.json({ success: true, id: productId, sku });
+  } catch (err) {
+    console.error('Error adding product:', err);
+    res.status(500).json({ error: 'Failed to add product' });
+  }
+});
+
 
   router.post('/sale', async (req, res) => {
     const { product_id, quantity, platform } = req.body;
@@ -141,3 +151,34 @@ router.post('/:id/restock', async (req, res) => {
     }
   });
   
+  // 📦 Generate SKU Helper
+function generateSKU(name, category, id) {
+  const catCode = category ? category.slice(0, 3).toUpperCase() : "GEN";
+  const nameCode = name ? name.split(' ')[0].slice(0, 3).toUpperCase() : "PRO";
+  return `${catCode}-${nameCode}-${String(id).padStart(3, '0')}`;
+}
+
+// 🆕 Add Product with Auto SKU
+router.post('/', async (req, res) => {
+  const { name, category, cost_price, sell_price, current_stock } = req.body;
+
+  try {
+    // Insert product first without SKU
+    const [result] = await db.execute(
+      `INSERT INTO products (name, category, cost_price, sell_price, current_stock) 
+       VALUES (?, ?, ?, ?, ?)`,
+      [name, category, cost_price, sell_price, current_stock]
+    );
+
+    const sku = `${category.slice(0,3).toUpperCase()}-${id.toString().padStart(4, '0')}`;
+
+
+    // Update SKU after ID is known
+    await db.execute('UPDATE products SET sku = ? WHERE id = ?', [sku, result.insertId]);
+
+    res.json({ success: true, sku });
+  } catch (err) {
+    console.error('Error adding product:', err);
+    res.status(500).json({ error: 'Failed to add product' });
+  }
+});

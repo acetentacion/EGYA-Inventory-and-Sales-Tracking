@@ -4,22 +4,41 @@
 <head>
   <meta charset="UTF-8">
   <title>Analytics - EGYA Inventory</title>
+  <script src="js/auth.js"></script>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 
 <body class="flex h-screen bg-gray-100">
 
-  <!-- Sidebar -->
   <aside class="w-64 bg-gray-800 text-white flex flex-col fixed h-full">
-    <div class="p-4 text-2xl font-bold border-b border-gray-700">EGYA Inventory</div>
+    <div class="p-4 text-2xl font-bold border-b border-gray-700">
+      EGYA Inventory
+    </div>
+  
+    <!-- Navigation Links -->
     <nav class="flex-1 p-4 space-y-2">
       <a href="index.html" class="block p-2 rounded hover:bg-gray-700">📊 Dashboard</a>
       <a href="products.html" class="block p-2 rounded hover:bg-gray-700">📦 Products</a>
       <a href="sales.html" class="block p-2 rounded hover:bg-gray-700">🛒 Sales</a>
-      <a href="analytics.html" class="block p-2 rounded bg-gray-700">📈 Analytics</a>
+      <a href="analytics.html" class="block p-2 rounded hover:bg-gray-700">📈 Analytics</a>
     </nav>
+  
+    <!-- Logout Button at Bottom -->
+    <div class="p-4 border-t border-gray-700">
+      <button id="logout-btn" class="w-full bg-red-500 hover:bg-red-600 text-white py-2 rounded">
+        Logout
+      </button>
+    </div>
+    <script>
+      document.getElementById('logout-btn').addEventListener('click', () => {
+  localStorage.removeItem('token'); // Clear stored token
+  window.location.href = 'login.html'; // Redirect to login
+});
+
+    </script>
   </aside>
+  
 
   <!-- Main Content -->
   <main class="flex-1 ml-64 p-6 overflow-y-auto">
@@ -63,6 +82,20 @@
         </table>
       </div>
     </div>
+
+    <div class="bg-white p-4 rounded shadow mt-6">
+      <h2 class="text-lg font-bold mb-4">📦 Total Stock by Category</h2>
+      <table class="w-full border">
+        <thead>
+          <tr class="bg-gray-100">
+            <th class="p-2 border">Category</th>
+            <th class="p-2 border">Total Stock</th>
+          </tr>
+        </thead>
+        <tbody id="stockByCategoryTable"></tbody>
+      </table>
+    </div>
+    
 
   </main>
 

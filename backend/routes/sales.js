@@ -91,46 +91,57 @@ router.get('/export', async (req, res) => {
     }
   });
   
-// GET Monthly Sales & Profit Summary
-router.get('/summary/:month', async (req, res) => {
-  try {
-    const month = req.params.month; // format: YYYY-MM
-    const [rows] = await db.execute(`
-      SELECT 
-        COALESCE(SUM(s.quantity * p.sell_price), 0) AS total_sales,
-        COALESCE(SUM(s.quantity * (p.sell_price - p.cost_price)), 0) AS total_profit
-      FROM sales s
-      JOIN products p ON s.product_id = p.id
-      WHERE DATE_FORMAT(s.date, '%Y-%m') = ?
-    `, [month]);
+  router.get('/summary/:month', async (req, res) => {
+    try {
+      const month = req.params.month; // format: YYYY-MM
+      const [rows] = await db.execute(`
+        SELECT 
+          COALESCE(SUM(s.quantity * p.sell_price), 0) 
+            - COALESCE(SUM(r.quantity * p.sell_price), 0) AS total_sales,
+          COALESCE(SUM(s.quantity * (p.sell_price - p.cost_price)), 0) 
+            - COALESCE(SUM(r.quantity * (p.sell_price - p.cost_price)), 0) AS total_profit
+        FROM products p
+        LEFT JOIN sales s 
+          ON p.id = s.product_id AND DATE_FORMAT(s.date, '%Y-%m') = ?
+        LEFT JOIN returns r 
+          ON p.id = r.product_id AND DATE_FORMAT(r.created_at, '%Y-%m') = ?
+      `, [month, month]);
+  
+      res.json(rows[0]);
+    } catch (err) {
+      console.error('Error fetching monthly summary:', err);
+      res.status(500).json({ error: 'Failed to fetch monthly summary' });
+    }
+  });
+  
 
-    res.json(rows[0]);
-  } catch (err) {
-    console.error('Error fetching monthly summary:', err);
-    res.status(500).json({ error: 'Failed to fetch monthly summary' });
-  }
-});
 
-router.get('/monthly-trend/:month', async (req, res) => {
-  const { month } = req.params;
-  try {
-    const [rows] = await db.execute(`
-      SELECT 
-        DATE(s.date) AS date,
-        SUM(s.quantity * p.sell_price) AS total_sales,
-        SUM(s.quantity * (p.sell_price - p.cost_price)) AS total_profit
-      FROM sales s
-      JOIN products p ON s.product_id = p.id
-      WHERE DATE_FORMAT(s.date, '%Y-%m') = ?
-      GROUP BY DATE(s.date)
-      ORDER BY DATE(s.date)
-    `, [month]);
-    res.json(rows);
-  } catch (err) {
-    console.error('Error fetching monthly trend:', err);
-    res.status(500).json({ error: 'Failed to fetch monthly trend' });
-  }
-});
+  router.get('/monthly-trend/:month', async (req, res) => {
+    const { month } = req.params;
+    try {
+      const [rows] = await db.execute(`
+        SELECT 
+          DATE(s.date) AS date,
+          COALESCE(SUM(s.quantity * p.sell_price), 0) 
+            - COALESCE(SUM(r.quantity * p.sell_price), 0) AS total_sales,
+          COALESCE(SUM(s.quantity * (p.sell_price - p.cost_price)), 0) 
+            - COALESCE(SUM(r.quantity * (p.sell_price - p.cost_price)), 0) AS total_profit
+        FROM products p
+        LEFT JOIN sales s 
+          ON p.id = s.product_id AND DATE_FORMAT(s.date, '%Y-%m') = ?
+        LEFT JOIN returns r 
+          ON p.id = r.product_id AND DATE_FORMAT(r.created_at, '%Y-%m') = ?
+        GROUP BY DATE(s.date)
+        ORDER BY DATE(s.date)
+      `, [month, month]);
+      res.json(rows);
+    } catch (err) {
+      console.error('Error fetching monthly trend:', err);
+      res.status(500).json({ error: 'Failed to fetch monthly trend' });
+    }
+  });
+  
+
 
 // router.get('/sales', async (req, res) => {
 //   try {
