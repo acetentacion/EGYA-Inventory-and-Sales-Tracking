@@ -278,7 +278,7 @@ router.get('/movement-status', async (req, res) => {
     const slowMoving = [];
 
     rows.forEach(product => {
-      if ((product.total_sold_last_30_days || 0) >= 10) {
+      if ((product.total_sold_last_30_days || 0) >= 5) {
         fastMoving.push(product);
       } else {
         slowMoving.push(product);

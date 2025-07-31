@@ -84,4 +84,5 @@ app.get('/api/sales/history/:productId', async (req, res) => {
   const authRoutes = require('./routes/auth');
 app.use('/api/auth', authRoutes);
 
-  
+const aiRoutes = require('./routes/ai');
+app.use('/api/ai', aiRoutes);

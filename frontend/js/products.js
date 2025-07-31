@@ -42,8 +42,8 @@ function renderProducts(products) {
 
   products.forEach(product => {
     let stockColor = 'bg-green-100 text-green-800';
-    if (product.current_stock <= 5) stockColor = 'bg-red-100 text-red-800';
-    else if (product.current_stock <= 15) stockColor = 'bg-yellow-100 text-yellow-800';
+    if (product.current_stock <= 1) stockColor = 'bg-red-100 text-red-800';
+    else if (product.current_stock <= 5) stockColor = 'bg-yellow-100 text-yellow-800';
 
     const card = document.createElement('div');
     card.className = 'bg-white rounded-xl shadow hover:shadow-lg transition p-4 flex flex-col justify-between';
@@ -242,20 +242,39 @@ async function populateCategoryDropdown() {
     const res = await fetch(`${API_BASE}/products/categories`);
     const categories = await res.json();
     
-    const dropdown = document.getElementById('category-filter');
-    dropdown.innerHTML = `<option value="">All Categories</option>`;
-    
+    // Filter dropdown
+    const filterDropdown = document.getElementById('category-filter');
+    filterDropdown.innerHTML = `<option value="">All Categories</option>`;
     categories.forEach(category => {
       const opt = document.createElement('option');
       opt.value = category;
       opt.textContent = category;
-      dropdown.appendChild(opt);
+      filterDropdown.appendChild(opt);
     });
+
+    // Modal dropdown (Product Form)
+    const modalDropdown = document.getElementById('category');
+    modalDropdown.innerHTML = `<option value="">Select Category</option>`;
+    categories.forEach(category => {
+      const opt = document.createElement('option');
+      opt.value = category;
+      opt.textContent = category;
+      modalDropdown.appendChild(opt);
+    });
+
+    // 🔹 Always add "+ Add New Category" option at the end
+    const addNewOption = document.createElement('option');
+    addNewOption.value = "__add_new__";
+    addNewOption.textContent = "+ Add New Category";
+    addNewOption.classList.add("text-blue-600", "font-semibold");
+    modalDropdown.appendChild(addNewOption);
 
   } catch (err) {
     console.error('Error loading categories:', err);
   }
 }
+
+
 
 // ================= Init =================
 document.addEventListener('DOMContentLoaded', () => {
@@ -290,3 +309,85 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('close-product-x')?.addEventListener('click', closeProductModal);
 });
 
+async function fetchCategoryFields(category) {
+  try {
+    const res = await fetch(`${API_BASE}/ai/category-fields?category=${encodeURIComponent(category)}`);
+    const data = await res.json();
+    return data.fields || [];
+  } catch (err) {
+    console.error("Error fetching AI fields:", err);
+    return [];
+  }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  const categorySelect = document.getElementById('category');
+  if (categorySelect) {
+    categorySelect.addEventListener('change', async function () {
+      const selectedCategory = this.value;
+      const dynamicFieldsContainer = document.getElementById('dynamic-fields');
+
+      if (!selectedCategory) {
+        dynamicFieldsContainer.innerHTML = '';
+        return;
+      }
+
+      dynamicFieldsContainer.innerHTML = `<p class="text-gray-500">Loading fields...</p>`;
+
+      const fields = await fetchCategoryFields(selectedCategory);
+
+      dynamicFieldsContainer.innerHTML = fields.map(field => `
+        <div>
+          <label class="block text-sm font-medium text-gray-700">${field}</label>
+          <input type="text" name="${field}" class="w-full border p-2 rounded">
+        </div>
+      `).join('');
+    });
+  }
+});
+
+
+document.addEventListener('DOMContentLoaded', () => {
+  const categoryDropdown = document.getElementById('category');
+  const addCategoryModal = document.getElementById('add-category-modal');
+  const newCategoryInput = document.getElementById('new-category-name');
+
+  // Open modal when user selects "Add New Category"
+  categoryDropdown.addEventListener('change', () => {
+    if (categoryDropdown.value === '__add_new__') {
+      addCategoryModal.classList.remove('hidden');
+      newCategoryInput.value = '';
+    }
+  });
+
+  // Close modal
+  document.getElementById('cancel-add-category').addEventListener('click', () => {
+    addCategoryModal.classList.add('hidden');
+    categoryDropdown.value = '';
+  });
+
+  document.getElementById('close-add-category').addEventListener('click', () => {
+    addCategoryModal.classList.add('hidden');
+    categoryDropdown.value = '';
+  });
+
+  // Save new category
+  document.getElementById('save-add-category').addEventListener('click', async () => {
+    const newCategory = newCategoryInput.value.trim();
+    if (!newCategory) return alert('Please enter a category name');
+
+    // Insert into dropdown
+    const newOption = document.createElement('option');
+    newOption.value = newCategory;
+    newOption.textContent = newCategory;
+
+    // Add before the "+ Add New" option
+    categoryDropdown.insertBefore(newOption, categoryDropdown.querySelector('[value="__add_new__"]'));
+
+    // Select the new category
+    categoryDropdown.value = newCategory;
+
+    // Close modal
+    addCategoryModal.classList.add('hidden');
+  });
+});

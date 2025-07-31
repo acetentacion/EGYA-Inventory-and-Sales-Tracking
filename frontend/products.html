@@ -102,48 +102,71 @@
       <button id="close-product-x"
         class="absolute top-2 right-2 text-gray-600 hover:text-black text-xl">&times;</button>
       <h2 id="product-modal-title" class="text-lg font-bold mb-4">Add Product</h2>
+
       <form id="product-form" class="space-y-4">
 
-        <div>
-          <label for="name" class="block text-sm font-medium text-gray-700">Product Name</label>
-          <input type="text" id="name" class="w-full border p-2 rounded" required>
-        </div>
+  <div>
+    <label for="name" class="block text-sm font-medium text-gray-700">Product Name</label>
+    <input type="text" id="name" class="w-full border p-2 rounded" required>
+  </div>
 
-        <div>
-          <label for="sku" class="block text-sm font-medium text-gray-700">SKU</label>
-          <input type="text" id="sku" placeholder="Auto-generated" class="w-full border p-2 rounded bg-gray-100" readonly>
-        </div>
+  <div>
+    <label for="sku" class="block text-sm font-medium text-gray-700">SKU</label>
+    <input type="text" id="sku" placeholder="Auto-generated" class="w-full border p-2 rounded bg-gray-100" readonly>
+  </div>
 
-        <div>
-          <label for="category" class="block text-sm font-medium text-gray-700">Category</label>
-          <input type="text" id="category" class="w-full border p-2 rounded" required>
-        </div>
+  <div>
+    <label for="category" class="block text-sm font-medium text-gray-700">Category</label>
+    <select id="category" class="w-full border p-2 rounded" required>
+      <option value="">Select Category</option>
+      <!-- Dynamically populated categories will appear here -->
+      <option value="__add_new__" class="text-blue-600 font-semibold">+ Add New Category</option>
+    </select>
+  </div>
+  
+  
 
-        <div>
-          <label for="cost_price" class="block text-sm font-medium text-gray-700">Cost Price</label>
-          <input type="number" id="cost_price" class="w-full border p-2 rounded" required>
-        </div>
+  <!-- AI Dynamic Fields (stays inside the modal) -->
+  <div id="dynamic-fields" class="space-y-2"></div>
 
-        <div>
-          <label for="sell_price" class="block text-sm font-medium text-gray-700">Sell Price</label>
-          <input type="number" id="sell_price" class="w-full border p-2 rounded" required>
-        </div>
+  <div>
+    <label for="cost_price" class="block text-sm font-medium text-gray-700">Cost Price</label>
+    <input type="number" id="cost_price" class="w-full border p-2 rounded" required>
+  </div>
 
-        <div>
-          <label for="current_stock" class="block text-sm font-medium text-gray-700">Stock</label>
-          <input type="number" id="current_stock" class="w-full border p-2 rounded" required>
-        </div>
+  <div>
+    <label for="sell_price" class="block text-sm font-medium text-gray-700">Sell Price</label>
+    <input type="number" id="sell_price" class="w-full border p-2 rounded" required>
+  </div>
 
-        <input type="hidden" id="product_id">
+  <div>
+    <label for="current_stock" class="block text-sm font-medium text-gray-700">Stock</label>
+    <input type="number" id="current_stock" class="w-full border p-2 rounded" required>
+  </div>
 
-        <div class="flex justify-end gap-2">
-          <button type="button" id="close-product" class="px-4 py-2 bg-gray-300 rounded">Cancel</button>
-          <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded">Save</button>
-        </div>
-      </form>
+  <input type="hidden" id="product_id">
+
+  <div class="flex justify-end gap-2">
+    <button type="button" id="close-product" class="px-4 py-2 bg-gray-300 rounded">Cancel</button>
+    <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded">Save</button>
+  </div>
+</form>
+
     </div>
   </div>
 
+<!-- 📂 Add Category Modal -->
+<div id="add-category-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+  <div class="bg-white p-6 rounded shadow-lg w-full max-w-sm relative">
+    <button id="close-add-category" class="absolute top-2 right-2 text-gray-600 hover:text-black text-xl">&times;</button>
+    <h2 class="text-lg font-bold mb-4">Add New Category</h2>
+    <input type="text" id="new-category-name" placeholder="Enter category name" class="w-full border p-2 rounded mb-4">
+    <div class="flex justify-end gap-2">
+      <button type="button" id="cancel-add-category" class="px-4 py-2 bg-gray-300 rounded">Cancel</button>
+      <button type="button" id="save-add-category" class="px-4 py-2 bg-blue-600 text-white rounded">Save</button>
+    </div>
+  </div>
+</div>
 
 
   <!-- 🗑 Delete Confirmation Modal -->

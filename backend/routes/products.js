@@ -2,12 +2,17 @@ const express = require('express');
 const router = express.Router();
 const db = require('../db');
 
+// backend/routes/products.js
 router.get('/', async (req, res) => {
   try {
-    const [rows] = await db.query('SELECT * FROM products');
+    const [rows] = await db.execute(`
+      SELECT * FROM products 
+      ORDER BY current_stock DESC  -- ✅ Highest stock first
+    `);
     res.json(rows);
   } catch (err) {
-    res.status(500).json({ error: 'Failed to fetch products' });
+    console.error('Error fetching products:', err);
+    res.status(500).json({ error: 'Failed to load products' });
   }
 });
 
@@ -182,3 +187,4 @@ router.post('/', async (req, res) => {
     res.status(500).json({ error: 'Failed to add product' });
   }
 });
+

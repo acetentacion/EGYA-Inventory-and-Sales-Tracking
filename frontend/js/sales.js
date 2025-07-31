@@ -53,39 +53,44 @@ async function loadSales() {
 }
 
 // ======== RECORD SALE =========
-document.getElementById('sales-form')?.addEventListener('submit', async function (e) {
+document.getElementById('sales-form').addEventListener('submit', async (e) => {
   e.preventDefault();
 
-  const sale = {
-    product_id: parseInt(document.getElementById('sale_product').value),
-    quantity: parseInt(document.getElementById('sale_quantity').value),
-    platform: document.getElementById('sale_platform').value
-  };
-
-  if (!sale.product_id || !sale.quantity || !sale.platform) {
-    alert('❌ Please fill out all fields');
-    return;
-  }
+  const productId = document.getElementById('sale_product').value;
+  const quantity = document.getElementById('sale_quantity').value;
+  const platform = document.getElementById('sale_platform').value;
+  const notification = document.getElementById('sale-notification');
 
   try {
     const res = await fetch(`${API_BASE}/sales`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(sale)
+      body: JSON.stringify({ product_id: productId, quantity, platform })
     });
 
+    const data = await res.json();
+
     if (res.ok) {
-      alert('✅ Sale recorded!');
-      this.reset();
-      loadSales();
-      populateProductDropdown();
+      // ✅ Success
+      notification.textContent = "✅ Sale recorded successfully!";
+      notification.className = "mb-4 p-3 rounded text-white bg-green-500";
+      notification.classList.remove('hidden');
+      e.target.reset();
+
+      setTimeout(() => notification.classList.add('hidden'), 3000);
     } else {
-      alert('❌ Error recording sale.');
+      throw new Error(data.error || 'Failed to record sale');
     }
   } catch (err) {
-    alert('❌ Request failed.');
+    // ❌ Error
+    notification.textContent = `⚠️ ${err.message}`;
+    notification.className = "mb-4 p-3 rounded text-white bg-red-500";
+    notification.classList.remove('hidden');
+
+    setTimeout(() => notification.classList.add('hidden'), 3000);
   }
 });
+
 
 // ======== SALES HISTORY MODAL =========
 const historyModal = document.getElementById('history-modal');
