@@ -1,0 +1,15 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+      {
+        "label": "Convert MySQL to SQLite",
+        "type": "shell",
+        "command": "node",
+        "args": [
+          "backend/convert-sqlite.js"
+        ],
+        "problemMatcher": []
+      }
+    ]
+  }
+  
